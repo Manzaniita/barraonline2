@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+:root {
+  --bo-bg-base: #070709;
+  --bo-bg-surface: #11131a;
+  --bo-bg-elevated: #191c26;
+  --bo-text-primary: #f8fafc;
+  --bo-text-muted: #94a3b8;
+  --bo-accent-primary: #ff2e63;
+  --bo-accent-secondary: #00f0ff;
+  --bo-accent-on-primary: #ffffff;
+  --bo-status-valid: #10b981;
+  --bo-status-conflict: #f59e0b;
+  --bo-status-danger: #ef4444;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background-color: var(--bo-bg-base);
+  color: var(--bo-text-primary);
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  selection-background-color: var(--bo-accent-primary);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Animaciones estrictamente en GPU (transform y opacity) */
+.bo-gpu-transition {
+  transition-property: transform, opacity;
+  transition-duration: 160ms;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, opacity;
+}
+
+.bo-gpu-transition:active {
+  transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
