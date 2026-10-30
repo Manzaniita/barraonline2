@@ -54,9 +54,8 @@ export async function GET(request: NextRequest) {
   try {
     const clientId = (process.env.GOOGLE_CLIENT_ID || '').trim();
     const clientSecret = (process.env.GOOGLE_CLIENT_SECRET || '').trim();
-    const appUrl = (
-      process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-    ).replace(/\/$/, '');
+    const vercelHost = process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
+    const appUrl = (process.env.NEXT_PUBLIC_APP_URL || (vercelHost ? 'https://' + vercelHost : '') || 'http://localhost:3000').replace(/\/$/, '');
     const redirectUri =
       (process.env.GOOGLE_REDIRECT_URI || '').trim() ||
       `${appUrl}/api/auth/google/callback`;

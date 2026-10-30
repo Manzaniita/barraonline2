@@ -224,7 +224,8 @@ export async function createMercadoPagoPreferenceForOrder(params: {
       [params.tenantId]
     );
     const tenantSlug = tenantRes.rows[0]?.slug || 'museum';
-    const appUrl = (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000').replace(/\/$/, '');
+    const vercelHost = process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
+    const appUrl = (process.env.NEXT_PUBLIC_APP_URL || (vercelHost ? 'https://' + vercelHost : '') || 'http://localhost:3000').replace(/\/$/, '');
     const returnBase = `${appUrl}/b/${tenantSlug}`;
 
     const itemsRes = await tx.query<{
