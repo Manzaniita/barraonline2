@@ -6,17 +6,11 @@ import {
   Clock,
   CreditCard,
   Flame,
-  GlassWater,
-  Layers,
   MessageCircle,
-  PartyPopper,
   QrCode,
-  ShieldAlert,
   ShieldCheck,
-  Smartphone,
   Sparkles,
   Store,
-  Users,
   Zap,
 } from 'lucide-react';
 import { ensureDemoDataSeeded } from '@/db/seed';
@@ -40,7 +34,7 @@ const MARQUEE_ITEMS = [
   'CONTROL DE STOCK EN TIEMPO REAL',
   'CERO FILAS EN CAJAS',
   'IDENTIDAD PROPIA PARA TU BOLICHE',
-  'MÁS TIEMPO EN PISTA MENOS ESPERA',
+  'MÁS TIEMPO EN PISTA, MENOS ESPERA',
 ];
 
 const WHATSAPP_DIRECT_URL =
@@ -54,45 +48,48 @@ export default async function HomePage() {
   const tenants = await listAllTenantsForDirectory();
 
   return (
-    <div className="relative min-h-screen bg-[#040407] text-slate-100 selection:bg-[#FF2E63] selection:text-white">
-      {/* Motor de Atmósfera Nocturna en Vivo (Canvas 60fps con luces de escenario y partículas) */}
+    <div className="relative min-h-screen bg-[#060608] text-slate-100 selection:bg-[#FF007A] selection:text-white">
+      {/* 1. Atmósfera Nocturna Arquitectónica (Sin cuadrículas, sin partículas aleatorias) */}
       <NightlifeAtmosphereCanvas />
 
-      {/* Header Sticky — Siempre visible con efecto glass y acceso unificado */}
+      {/* 2. Header Sticky Profesional con Jerarquía Equilibrada y Navegación Inteligente */}
       <LandingHeader />
 
-      {/* Botón Flotante Discreto de WhatsApp */}
+      {/* 3. Botón Flotante Discreto de WhatsApp */}
       <FloatingWhatsAppButton />
 
-      <main className="relative z-10 pt-20 sm:pt-24">
+      <main className="relative z-10 pt-[76px] sm:pt-[84px]">
         {/* ====================================================================
-            SECCIÓN 1 — HERO: ALTO IMPACTO COMERCIAL ORIENTADO AL DUEÑO
+            SECCIÓN 1 — HERO: DIRECCIÓN DE ARTE NOCTURNA Y ALTO IMPACTO COMERCIAL
             ==================================================================== */}
-        <section className="mx-auto max-w-7xl px-4 pt-6 pb-16 sm:px-6 lg:pt-12 lg:pb-24">
-          <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-10">
+        <section className="mx-auto max-w-7xl px-4 pt-6 pb-16 sm:px-6 lg:px-8 lg:pt-14 lg:pb-24">
+          <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-12">
             {/* Columna Izquierda: Mensaje Comercial Dominante */}
             <div className="space-y-6 lg:col-span-7">
-              <div className="animate-bo-reveal-1 inline-flex flex-wrap items-center gap-2.5 rounded-full border border-[#FF2E63]/40 bg-[#FF2E63]/12 px-4 py-1.5 text-xs font-black tracking-widest text-[#FF2E63] uppercase shadow-[0_0_30px_rgba(255,46,99,0.25)]">
-                <Sparkles className="h-3.5 w-3.5 text-[#00F0FF]" />
-                <span>Plataforma SaaS para Boliches y Bares</span>
+              {/* Badge Editorial de Marca */}
+              <div className="animate-bo-reveal-1 inline-flex items-center gap-2 rounded-full border border-white/[0.1] bg-white/[0.04] px-3.5 py-1.5 text-xs font-semibold tracking-wider text-slate-200 backdrop-blur-md">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#FF007A] shadow-[0_0_8px_#FF007A]" />
+                <span className="font-medium">Plataforma SaaS para Boliches y Bares</span>
               </div>
 
-              <h1 className="animate-bo-reveal-2 text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-[4.15rem] lg:leading-[1.03]">
+              {/* Titular Principal con Tipografía de Display Syne */}
+              <h1 className="animate-bo-reveal-2 font-display text-3xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-[4.25rem] lg:leading-[1.05]">
                 Tu boliche.{' '}
-                <span className="block bg-gradient-to-r from-[#FF2E63] via-[#FF7597] to-[#00F0FF] bg-clip-text text-transparent">
+                <span className="block text-[#FF007A]">
                   Una nueva forma de vivir la noche.
                 </span>
               </h1>
 
-              <p className="animate-bo-reveal-3 max-w-2xl text-base leading-relaxed text-slate-300 sm:text-xl">
-                Digitalizá tus pedidos, agilizá la atención en barra y ofrecé a tus clientes una experiencia que va más allá de la pista. Tus clientes eligen y pagan desde el celular; tu equipo solo entrega con validación QR en segundos.
+              {/* Proposición de Valor Clara y Concisa */}
+              <p className="animate-bo-reveal-3 max-w-2xl text-sm leading-relaxed text-slate-300 sm:text-base lg:text-lg">
+                Digitalizá tus pedidos, agilizá la atención en barra y ofrecé a tus clientes una experiencia fluida. Tus clientes eligen y pagan desde el celular; tu equipo solo entrega con validación QR en segundos.
               </p>
 
               {/* CTAs Comerciales Principales */}
-              <div className="animate-bo-reveal-4 flex flex-wrap items-center gap-4 pt-1">
+              <div className="animate-bo-reveal-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
                 <a
                   href="#contacto"
-                  className="bo-btn-laser inline-flex items-center gap-3 rounded-2xl bg-[#FF2E63] px-7 py-4 text-sm font-black tracking-wider text-white uppercase shadow-[0_0_35px_rgba(255,46,99,0.55)] transition-transform hover:scale-105 active:scale-95"
+                  className="bo-btn-laser inline-flex items-center justify-center gap-2.5 rounded-xl bg-[#FF007A] px-6 py-3.5 text-xs sm:text-sm font-bold tracking-wide text-white uppercase shadow-[0_0_24px_rgba(255,0,122,0.38)] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                 >
                   <span>Quiero BarraOnline</span>
                   <ArrowRight className="h-4 w-4" />
@@ -100,58 +97,58 @@ export default async function HomePage() {
 
                 <a
                   href="#como-funciona"
-                  className="bo-gpu-transition inline-flex items-center gap-2.5 rounded-2xl border border-white/15 bg-white/[0.05] px-6 py-4 text-sm font-extrabold tracking-wider text-slate-100 uppercase backdrop-blur-md hover:border-[#00F0FF]/50 hover:bg-white/10"
+                  className="bo-gpu-transition inline-flex items-center justify-center gap-2 rounded-xl border border-white/[0.12] bg-white/[0.04] px-5 py-3.5 text-xs sm:text-sm font-semibold tracking-wide text-slate-200 backdrop-blur-md hover:border-white/[0.25] hover:bg-white/[0.08] hover:text-white"
                 >
                   <QrCode className="h-4 w-4 text-[#00F0FF]" />
-                  <span>Descubrir cómo funciona</span>
+                  <span>Ver cómo funciona</span>
                 </a>
               </div>
 
-              {/* Pilares Comerciales Inmediatos */}
-              <div className="animate-bo-reveal-4 grid grid-cols-2 gap-3 pt-3 sm:grid-cols-4">
-                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3.5 backdrop-blur-sm transition hover:border-[#FF2E63]/40">
-                  <div className="flex items-center gap-1.5 text-[11px] font-black text-[#FF2E63] uppercase">
-                    <Clock className="h-3.5 w-3.5 shrink-0" />
+              {/* Pilares Comerciales Inmediatos en Cristal Nocturno Unificado */}
+              <div className="animate-bo-reveal-4 grid grid-cols-2 gap-3 pt-4 sm:grid-cols-4">
+                <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-3.5 backdrop-blur-sm transition-colors duration-200 hover:border-white/[0.15]">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-white uppercase">
+                    <Clock className="h-3.5 w-3.5 text-[#FF007A]" />
                     <span>Sin colas</span>
                   </div>
-                  <p className="mt-1 text-xs text-slate-300 leading-snug">
-                    Tus clientes piden desde el celular sin abandonar la pista.
+                  <p className="mt-1 text-xs text-slate-400 leading-snug">
+                    Tus clientes piden desde el celular sin perderse la música.
                   </p>
                 </div>
 
-                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3.5 backdrop-blur-sm transition hover:border-emerald-400/40">
-                  <div className="flex items-center gap-1.5 text-[11px] font-black text-emerald-400 uppercase">
-                    <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
+                <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-3.5 backdrop-blur-sm transition-colors duration-200 hover:border-white/[0.15]">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-white uppercase">
+                    <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
                     <span>Mercado Pago</span>
                   </div>
-                  <p className="mt-1 text-xs text-slate-300 leading-snug">
-                    Cobros directos e instantáneos a la cuenta del boliche.
+                  <p className="mt-1 text-xs text-slate-400 leading-snug">
+                    Cobros directos e instantáneos a la cuenta de tu boliche.
                   </p>
                 </div>
 
-                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3.5 backdrop-blur-sm transition hover:border-[#00F0FF]/40">
-                  <div className="flex items-center gap-1.5 text-[11px] font-black text-[#00F0FF] uppercase">
-                    <QrCode className="h-3.5 w-3.5 shrink-0" />
+                <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-3.5 backdrop-blur-sm transition-colors duration-200 hover:border-white/[0.15]">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-white uppercase">
+                    <QrCode className="h-3.5 w-3.5 text-[#00F0FF]" />
                     <span>Entrega QR</span>
                   </div>
-                  <p className="mt-1 text-xs text-slate-300 leading-snug">
+                  <p className="mt-1 text-xs text-slate-400 leading-snug">
                     El barman escanea el código en 3 segundos y entrega la bebida.
                   </p>
                 </div>
 
-                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3.5 backdrop-blur-sm transition hover:border-amber-400/40">
-                  <div className="flex items-center gap-1.5 text-[11px] font-black text-amber-400 uppercase">
-                    <Store className="h-3.5 w-3.5 shrink-0" />
+                <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-3.5 backdrop-blur-sm transition-colors duration-200 hover:border-white/[0.15]">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-white uppercase">
+                    <Store className="h-3.5 w-3.5 text-amber-400" />
                     <span>Marca Blanca</span>
                   </div>
-                  <p className="mt-1 text-xs text-slate-300 leading-snug">
-                    Tu nombre, tus colores y tu carta personalizada en cada pantalla.
+                  <p className="mt-1 text-xs text-slate-400 leading-snug">
+                    Tu nombre, tu logo y tus cartas personalizadas en cada pantalla.
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Columna Derecha: Demostración Visual del Producto (Escenario 3D interactivo) */}
+            {/* Columna Derecha: Escenario Interactivo con Identidad de Smartphone */}
             <div className="lg:col-span-5">
               <HeroInteractiveStage />
             </div>
@@ -159,11 +156,11 @@ export default async function HomePage() {
         </section>
 
         {/* ====================================================================
-            CINTA CINÉTICA DE MARCA (MARQUEE)
+            CINTA CINÉTICA DE MARCA (MARQUEE ELEGANTE Y FLUIDO)
             ==================================================================== */}
         <div
           aria-hidden="true"
-          className="relative overflow-hidden border-y border-white/10 bg-[#080A11]/90 py-4 backdrop-blur-md"
+          className="relative overflow-hidden border-y border-white/[0.07] bg-[#07080e]/80 py-3.5 backdrop-blur-md"
         >
           <div className="animate-bo-marquee flex items-center gap-10 whitespace-nowrap">
             {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, idx) => (
@@ -171,37 +168,37 @@ export default async function HomePage() {
                 <span
                   className={
                     idx % 2 === 0
-                      ? 'text-sm font-black tracking-[0.2em] text-white uppercase sm:text-base'
-                      : 'bo-text-outline text-sm font-black tracking-[0.2em] uppercase sm:text-base'
+                      ? 'font-display text-xs font-bold tracking-[0.2em] text-white uppercase sm:text-sm'
+                      : 'font-display bo-text-outline text-xs font-bold tracking-[0.2em] uppercase sm:text-sm'
                   }
                 >
                   {item}
                 </span>
-                <span className="h-2 w-2 rotate-45 bg-[#FF2E63] shadow-[0_0_12px_#FF2E63]" />
+                <span className="h-1.5 w-1.5 rotate-45 bg-[#FF007A] shadow-[0_0_8px_#FF007A]" />
               </div>
             ))}
           </div>
         </div>
 
         {/* ====================================================================
-            SECCIÓN 2 — EL PROBLEMA QUE RESOLVEMOS
+            SECCIÓN 2 — EL PROBLEMA QUE RESOLVEMOS (COMPARATIVA EDITORIAL)
             ==================================================================== */}
         <section
           id="problema"
-          className="mx-auto max-w-7xl scroll-mt-28 px-4 py-20 sm:px-6"
+          className="mx-auto max-w-7xl scroll-mt-24 px-4 py-20 sm:px-6 lg:px-8"
         >
           <ScrollReveal>
             <div className="mb-12 flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
               <div className="max-w-2xl space-y-3">
-                <span className="text-xs font-black tracking-widest text-[#FF2E63] uppercase">
-                  El cuello de botella de la noche
+                <span className="inline-flex items-center gap-2 text-xs font-bold tracking-widest text-[#FF007A] uppercase">
+                  <span>El cuello de botella de la noche</span>
                 </span>
-                <h2 className="text-3xl font-black tracking-tight text-white sm:text-5xl">
+                <h2 className="font-display text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
                   Las filas en barra le quitan ritmo a la fiesta y ventas a tu negocio.
                 </h2>
               </div>
               <p className="max-w-md text-sm leading-relaxed text-slate-300">
-                Entre las 2:00 y las 4:30 AM la demanda explota. BarraOnline no promete milagros: te da una herramienta concreta para organizar los pedidos, descomprimir las barras y agilizar cada despacho.
+                Entre las 2:00 y las 4:30 AM la demanda explota. BarraOnline te da una herramienta concreta para ordenar los pedidos, descomprimir las barras y agilizar cada despacho.
               </p>
             </div>
           </ScrollReveal>
@@ -210,13 +207,13 @@ export default async function HomePage() {
           <div className="grid gap-6 lg:grid-cols-12">
             {/* Bloque Izquierdo: La Operación Tradicional */}
             <ScrollReveal className="lg:col-span-6" direction="left">
-              <div className="relative flex h-full flex-col justify-between overflow-hidden rounded-[2.25rem] border border-rose-500/25 bg-gradient-to-b from-[#180C14]/90 to-[#0A070D]/95 p-6 sm:p-9 shadow-[0_20px_50px_rgba(244,63,94,0.1)]">
+              <div className="relative flex h-full flex-col justify-between overflow-hidden rounded-[2rem] border border-rose-500/20 bg-[#120a10]/80 p-6 sm:p-8 backdrop-blur-md">
                 <div className="space-y-5">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-rose-500/30 bg-rose-500/10 px-3 py-1 text-[11px] font-black tracking-wider text-rose-400 uppercase">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-rose-500/25 bg-rose-500/10 px-3 py-1 text-[11px] font-bold tracking-wider text-rose-400 uppercase">
                     ✕ La barra tradicional
                   </div>
 
-                  <h3 className="text-2xl font-black text-white sm:text-3xl">
+                  <h3 className="font-display text-2xl font-bold text-white sm:text-3xl">
                     Demoras, pedidos perdidos y desconexión con la música
                   </h3>
 
@@ -231,7 +228,7 @@ export default async function HomePage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-rose-400 font-bold shrink-0">✕</span>
-                      <span><strong>Cobros lentos en la oscuridad:</strong> manipulación de billetes o terminales POS que pierden señal justo en el momento de mayor consumo.</span>
+                      <span><strong>Cobros lentos en la oscuridad:</strong> manipulación de billetes o terminales POS que pierden señal en el pico de consumo.</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-rose-400 font-bold shrink-0">✕</span>
@@ -240,7 +237,7 @@ export default async function HomePage() {
                   </ul>
                 </div>
 
-                <div className="mt-8 border-t border-rose-500/20 pt-4 text-xs text-rose-300/80">
+                <div className="mt-8 border-t border-rose-500/15 pt-4 text-xs text-rose-300/80">
                   Resultado: frustración en los clientes y cuellos de botella en la operación.
                 </div>
               </div>
@@ -248,19 +245,14 @@ export default async function HomePage() {
 
             {/* Bloque Derecho: Con BarraOnline */}
             <ScrollReveal className="lg:col-span-6" direction="right">
-              <div className="bo-glass-panel relative flex h-full flex-col justify-between overflow-hidden rounded-[2.25rem] border border-emerald-500/35 bg-gradient-to-b from-[#0A1A18]/90 to-[#070E14]/95 p-6 sm:p-9 shadow-[0_20px_50px_rgba(16,185,129,0.15)]">
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-emerald-500/15 blur-3xl"
-                />
-
+              <div className="bo-glass-panel relative flex h-full flex-col justify-between overflow-hidden rounded-[2rem] border border-emerald-500/25 bg-[#0a1413]/80 p-6 sm:p-8 backdrop-blur-md">
                 <div className="relative z-10 space-y-5">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 text-[11px] font-black tracking-wider text-emerald-300 uppercase">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 text-[11px] font-bold tracking-wider text-emerald-300 uppercase">
                     <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
                     <span>Con BarraOnline en tu boliche</span>
                   </div>
 
-                  <h3 className="text-2xl font-black text-white sm:text-3xl">
+                  <h3 className="font-display text-2xl font-bold text-white sm:text-3xl">
                     Flujo directo, consumo ágil y retiro en barra con QR
                   </h3>
 
@@ -284,13 +276,13 @@ export default async function HomePage() {
                   </ul>
                 </div>
 
-                <div className="relative z-10 mt-8 border-t border-emerald-500/20 pt-4 flex items-center justify-between">
-                  <span className="text-xs text-emerald-300 font-bold">
-                    Resultado: barras más ordenadas y clientes que consumen más cómodos.
+                <div className="relative z-10 mt-8 border-t border-emerald-500/15 pt-4 flex items-center justify-between">
+                  <span className="text-xs text-emerald-300 font-medium">
+                    Barras más ordenadas y clientes que consumen con tranquilidad.
                   </span>
                   <a
                     href="#como-funciona"
-                    className="inline-flex items-center gap-1 text-xs font-black text-[#00F0FF] uppercase hover:underline"
+                    className="inline-flex items-center gap-1 text-xs font-bold text-[#00F0FF] hover:underline"
                   >
                     Ver el recorrido
                     <ArrowRight className="h-3.5 w-3.5" />
@@ -306,25 +298,25 @@ export default async function HomePage() {
             ==================================================================== */}
         <section
           id="como-funciona"
-          className="mx-auto max-w-7xl scroll-mt-28 px-4 py-20 sm:px-6"
+          className="mx-auto max-w-7xl scroll-mt-24 px-4 py-20 sm:px-6 lg:px-8"
         >
           <ScrollReveal>
             <div className="mb-12 max-w-3xl space-y-3">
-              <span className="inline-flex items-center gap-2 rounded-full border border-[#FF2E63]/35 bg-[#FF2E63]/10 px-3.5 py-1 text-xs font-black tracking-widest text-[#FF2E63] uppercase">
+              <span className="inline-flex items-center gap-2 text-xs font-bold tracking-widest text-[#FF007A] uppercase">
                 <Sparkles className="h-3.5 w-3.5" />
                 Experiencia en cuatro pasos
               </span>
-              <h2 className="text-3xl font-black tracking-tight text-white sm:text-5xl">
+              <h2 className="font-display text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
                 ¿Cómo funciona BarraOnline?
               </h2>
               <p className="text-base text-slate-300 sm:text-lg">
-                Una secuencia intuitiva diseñada para que cualquier cliente pueda pedir en menos de un minuto, sin instalar aplicaciones pesadas ni perder tiempo en la caja.
+                Una secuencia intuitiva pensada para que cualquier cliente pueda pedir en menos de un minuto, sin descargar apps ni perder tiempo en la caja.
               </p>
             </div>
           </ScrollReveal>
 
           {/* Simulador Interactivo Paso a Paso */}
-          <ScrollReveal delayMs={100}>
+          <ScrollReveal delayMs={80}>
             <LiveOrderJourneySimulator />
           </ScrollReveal>
         </section>
@@ -334,42 +326,37 @@ export default async function HomePage() {
             ==================================================================== */}
         <section
           id="beneficios"
-          className="mx-auto max-w-7xl scroll-mt-28 px-4 py-20 sm:px-6"
+          className="mx-auto max-w-7xl scroll-mt-24 px-4 py-20 sm:px-6 lg:px-8"
         >
           <ScrollReveal>
             <div className="mb-12 flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
               <div className="max-w-2xl space-y-3">
-                <span className="text-xs font-black tracking-widest text-[#00F0FF] uppercase">
+                <span className="text-xs font-bold tracking-widest text-[#00F0FF] uppercase">
                   Ventajas estratégicas
                 </span>
-                <h2 className="text-3xl font-black tracking-tight text-white sm:text-5xl">
+                <h2 className="font-display text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
                   Diseñado para profesionalizar la venta nocturna.
                 </h2>
               </div>
               <p className="max-w-md text-sm leading-relaxed text-slate-300">
-                Combiná agilidad operativa en barra con una experiencia digital moderna que tus clientes van a valorar desde la primera noche.
+                Combiná agilidad operativa en barra con una experiencia digital moderna que tus clientes valoran desde la primera noche.
               </p>
             </div>
           </ScrollReveal>
 
-          {/* Bento Asimétrico de Beneficios Comerciales */}
+          {/* Bento Asimétrico de Beneficios */}
           <div className="grid gap-6 lg:grid-cols-12">
-            {/* Beneficio 1 (Grande, 7 columnas): Experiencia Moderna */}
+            {/* Beneficio 1 (Grande, 7 columnas): Experiencia en Pista */}
             <ScrollReveal className="lg:col-span-7" direction="left">
-              <div className="bo-glass-panel relative flex h-full flex-col justify-between overflow-hidden rounded-[2.25rem] p-6 sm:p-9">
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-[#FF2E63]/20 blur-3xl"
-                />
-
-                <div className="relative z-10 space-y-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FF2E63]/20 text-[#FF2E63]">
-                    <Zap className="h-6 w-6" />
+              <div className="bo-glass-panel relative flex h-full flex-col justify-between overflow-hidden rounded-[2rem] p-6 sm:p-8">
+                <div className="space-y-4">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#FF007A]/15 text-[#FF007A] border border-[#FF007A]/25">
+                    <Zap className="h-5 w-5" />
                   </div>
-                  <span className="text-[11px] font-black tracking-widest text-[#FF2E63] uppercase">
+                  <span className="text-[11px] font-bold tracking-widest text-[#FF007A] uppercase">
                     EXPERIENCIA EN PISTA
                   </span>
-                  <h3 className="text-2xl font-black text-white sm:text-3xl">
+                  <h3 className="font-display text-2xl font-bold text-white sm:text-3xl">
                     Tus clientes disfrutan más de la música y menos de las filas
                   </h3>
                   <p className="text-sm leading-relaxed text-slate-300">
@@ -377,9 +364,9 @@ export default async function HomePage() {
                   </p>
                 </div>
 
-                <div className="relative z-10 mt-6 grid grid-cols-2 gap-3 border-t border-white/10 pt-5">
+                <div className="mt-8 grid grid-cols-2 gap-4 border-t border-white/[0.08] pt-5">
                   <div>
-                    <span className="block text-2xl font-black text-[#00F0FF] sm:text-3xl">
+                    <span className="font-display block text-2xl font-bold text-[#00F0FF] sm:text-3xl">
                       3 a 5 seg
                     </span>
                     <span className="text-xs text-slate-400">
@@ -387,7 +374,7 @@ export default async function HomePage() {
                     </span>
                   </div>
                   <div>
-                    <span className="block text-2xl font-black text-[#FF2E63] sm:text-3xl">
+                    <span className="font-display block text-2xl font-bold text-[#FF007A] sm:text-3xl">
                       100%
                     </span>
                     <span className="text-xs text-slate-400">
@@ -400,20 +387,16 @@ export default async function HomePage() {
 
             {/* Beneficios 2 y 3 (Columna derecha, 5 columnas apiladas) */}
             <div className="flex flex-col gap-6 lg:col-span-5">
-              <ScrollReveal delayMs={100} direction="right">
-                <div className="bo-glass-panel relative overflow-hidden rounded-[2.25rem] p-6 sm:p-7">
-                  <div
-                    aria-hidden="true"
-                    className="pointer-events-none absolute -top-16 -right-16 h-48 w-48 rounded-full bg-[#00F0FF]/20 blur-2xl"
-                  />
-                  <div className="relative z-10 space-y-3">
+              <ScrollReveal delayMs={80} direction="right">
+                <div className="bo-glass-panel relative overflow-hidden rounded-[2rem] p-6 sm:p-7">
+                  <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-black tracking-widest text-[#00F0FF] uppercase">
+                      <span className="text-[11px] font-bold tracking-widest text-[#00F0FF] uppercase">
                         COBROS DIRECTOS
                       </span>
                       <CreditCard className="h-5 w-5 text-[#00F0FF]" />
                     </div>
-                    <h3 className="text-xl font-black text-white">
+                    <h3 className="font-display text-xl font-bold text-white">
                       Acreditación inmediata en tu Mercado Pago
                     </h3>
                     <p className="text-xs leading-relaxed text-slate-300 sm:text-sm">
@@ -423,20 +406,16 @@ export default async function HomePage() {
                 </div>
               </ScrollReveal>
 
-              <ScrollReveal delayMs={200} direction="right">
-                <div className="bo-glass-panel relative overflow-hidden rounded-[2.25rem] p-6 sm:p-7">
-                  <div
-                    aria-hidden="true"
-                    className="pointer-events-none absolute -bottom-16 -right-16 h-48 w-48 rounded-full bg-purple-500/20 blur-2xl"
-                  />
-                  <div className="relative z-10 space-y-3">
+              <ScrollReveal delayMs={160} direction="right">
+                <div className="bo-glass-panel relative overflow-hidden rounded-[2rem] p-6 sm:p-7">
+                  <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-black tracking-widest text-purple-300 uppercase">
+                      <span className="text-[11px] font-bold tracking-widest text-slate-300 uppercase">
                         CONTROL EN VIVO
                       </span>
-                      <BarChart3 className="h-5 w-5 text-purple-300" />
+                      <BarChart3 className="h-5 w-5 text-slate-300" />
                     </div>
-                    <h3 className="text-xl font-black text-white">
+                    <h3 className="font-display text-xl font-bold text-white">
                       Sabé qué bebidas tenés y evitá vender agotados
                     </h3>
                     <p className="text-xs leading-relaxed text-slate-300 sm:text-sm">
@@ -454,15 +433,15 @@ export default async function HomePage() {
             ==================================================================== */}
         <section
           id="para-boliches"
-          className="mx-auto max-w-7xl scroll-mt-28 px-4 py-20 sm:px-6"
+          className="mx-auto max-w-7xl scroll-mt-24 px-4 py-20 sm:px-6 lg:px-8"
         >
           <ScrollReveal>
             <div className="mb-12 max-w-3xl space-y-3">
-              <span className="inline-flex items-center gap-2 rounded-full border border-purple-500/35 bg-purple-500/10 px-3.5 py-1 text-xs font-black tracking-widest text-purple-300 uppercase">
-                <Store className="h-3.5 w-3.5" />
+              <span className="inline-flex items-center gap-2 text-xs font-bold tracking-widest text-slate-300 uppercase">
+                <Store className="h-3.5 w-3.5 text-[#FF007A]" />
                 Personalización Integral
               </span>
-              <h2 className="text-3xl font-black tracking-tight text-white sm:text-5xl">
+              <h2 className="font-display text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
                 Tu boliche, tu identidad.
               </h2>
               <p className="text-base text-slate-300 sm:text-lg">
@@ -472,7 +451,7 @@ export default async function HomePage() {
           </ScrollReveal>
 
           {/* Demostración Interactiva de Marca Blanca */}
-          <ScrollReveal delayMs={100}>
+          <ScrollReveal delayMs={80}>
             <BrandIdentityShowcase />
           </ScrollReveal>
         </section>
@@ -482,16 +461,16 @@ export default async function HomePage() {
             ==================================================================== */}
         <section
           id="boliches"
-          className="mx-auto max-w-7xl scroll-mt-28 px-4 py-20 sm:px-6"
+          className="mx-auto max-w-7xl scroll-mt-24 px-4 py-20 sm:px-6 lg:px-8"
         >
           <ScrollReveal>
-            <div className="flex flex-col justify-between gap-4 border-b border-white/10 pb-8 lg:flex-row lg:items-end">
+            <div className="flex flex-col justify-between gap-4 border-b border-white/[0.08] pb-8 lg:flex-row lg:items-end">
               <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 text-xs font-black tracking-widest text-[#00F0FF] uppercase">
-                  <Flame className="h-4 w-4 text-[#FF2E63]" />
+                <div className="inline-flex items-center gap-2 text-xs font-bold tracking-widest text-[#00F0FF] uppercase">
+                  <Flame className="h-4 w-4 text-[#FF007A]" />
                   <span>Establecimientos Habilitados en la Plataforma</span>
                 </div>
-                <h2 className="text-3xl font-black tracking-tight text-white sm:text-5xl">
+                <h2 className="font-display text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
                   Boliches Adheridos
                 </h2>
                 <p className="max-w-2xl text-sm text-slate-300 sm:text-base">
@@ -499,8 +478,8 @@ export default async function HomePage() {
                 </p>
               </div>
 
-              <div className="bo-glass-pill inline-flex items-center gap-2.5 self-start rounded-full px-4 py-2 text-xs font-bold text-emerald-300 lg:self-auto">
-                <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-emerald-400 shadow-[0_0_12px_#10B981]" />
+              <div className="bo-glass-pill inline-flex items-center gap-2 self-start rounded-full px-3.5 py-1.5 text-xs font-semibold text-emerald-300 lg:self-auto">
+                <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400 shadow-[0_0_8px_#10B981]" />
                 <span>Cartas digitales sincronizadas en tiempo real</span>
               </div>
             </div>
@@ -509,14 +488,14 @@ export default async function HomePage() {
           {/* Renderizado de Boliches Habilitados desde la Base de Datos */}
           <div className="mt-10 grid gap-8 lg:grid-cols-2">
             {tenants.map((tenant, idx) => (
-              <ScrollReveal key={tenant.id} delayMs={idx * 120}>
+              <ScrollReveal key={tenant.id} delayMs={idx * 100}>
                 <SpotlightClubCard
                   id={tenant.id}
                   slug={tenant.slug}
                   fantasyName={tenant.fantasy_name}
                   city={tenant.city}
                   address={tenant.address}
-                  accentPrimary={tenant.theme_config?.accentPrimary || '#FF2E63'}
+                  accentPrimary={tenant.theme_config?.accentPrimary || '#FF007A'}
                   accentSecondary={tenant.theme_config?.accentSecondary || '#00F0FF'}
                   accentOnPrimary={tenant.theme_config?.accentOnPrimary || '#FFFFFF'}
                   heroBadge={tenant.theme_config?.heroBadge || 'BOLICHE ADHERIDO'}
@@ -536,26 +515,16 @@ export default async function HomePage() {
         {/* ====================================================================
             SECCIÓN 7 — CONVERTITE EN UN BOLICHE ADHERIDO (CONVERSIÓN ALTA)
             ==================================================================== */}
-        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
+        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           <ScrollReveal direction="scale">
-            <div className="relative overflow-hidden rounded-[2.5rem] border border-white/20 bg-gradient-to-br from-[#12162A] via-[#0B0D18] to-[#1A0F26] p-8 sm:p-12 lg:p-16 shadow-[0_30px_90px_rgba(0,0,0,0.85)]">
-              {/* Luces de Escenario Ambientales */}
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute -top-32 right-10 h-96 w-96 rounded-full bg-[#00F0FF]/15 blur-3xl"
-              />
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute -bottom-32 left-10 h-96 w-96 rounded-full bg-[#FF2E63]/15 blur-3xl"
-              />
-
+            <div className="relative overflow-hidden rounded-[2.25rem] border border-white/[0.12] bg-gradient-to-br from-[#121422] via-[#0b0c16] to-[#160d1f] p-8 sm:p-12 lg:p-16 shadow-[0_24px_70px_rgba(0,0,0,0.85)]">
               <div className="relative z-10 max-w-3xl space-y-6">
-                <span className="inline-flex items-center gap-2 rounded-full border border-[#00F0FF]/40 bg-[#00F0FF]/10 px-3.5 py-1 text-xs font-black tracking-widest text-[#00F0FF] uppercase">
-                  <Sparkles className="h-3.5 w-3.5 text-[#FF2E63]" />
+                <span className="inline-flex items-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.04] px-3.5 py-1 text-xs font-bold tracking-widest text-[#00F0FF] uppercase">
+                  <Sparkles className="h-3.5 w-3.5 text-[#FF007A]" />
                   Sumá tu establecimiento
                 </span>
 
-                <h2 className="text-3xl font-black tracking-tight text-white sm:text-5xl sm:leading-[1.08]">
+                <h2 className="font-display text-3xl font-extrabold tracking-tight text-white sm:text-5xl sm:leading-[1.08]">
                   Llevá tu boliche al siguiente nivel.
                 </h2>
 
@@ -566,7 +535,7 @@ export default async function HomePage() {
                 <div className="flex flex-wrap items-center gap-4 pt-2">
                   <a
                     href="#contacto"
-                    className="bo-btn-laser inline-flex items-center gap-2.5 rounded-2xl bg-[#FF2E63] px-7 py-4 text-xs font-black tracking-wider text-white uppercase shadow-[0_0_30px_rgba(255,46,99,0.55)] transition-transform hover:scale-105 active:scale-95"
+                    className="bo-btn-laser inline-flex items-center gap-2.5 rounded-xl bg-[#FF007A] px-6 py-3.5 text-xs font-bold tracking-wider text-white uppercase shadow-[0_0_24px_rgba(255,0,122,0.38)] transition-all hover:scale-[1.02] active:scale-[0.98]"
                   >
                     <span>Solicitar información</span>
                     <ArrowRight className="h-4 w-4" />
@@ -576,7 +545,7 @@ export default async function HomePage() {
                     href={WHATSAPP_DIRECT_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2.5 rounded-2xl border border-emerald-400/40 bg-emerald-500/10 px-6 py-4 text-xs font-black tracking-wider text-emerald-300 uppercase backdrop-blur-md hover:bg-emerald-500/20 hover:border-emerald-400 transition-all"
+                    className="inline-flex items-center gap-2.5 rounded-xl border border-emerald-400/35 bg-emerald-500/10 px-5 py-3.5 text-xs font-bold tracking-wider text-emerald-300 uppercase backdrop-blur-md hover:bg-emerald-500/15 hover:border-emerald-400/60 transition-all"
                   >
                     <MessageCircle className="h-4 w-4 text-emerald-400" />
                     <span>Hablar por WhatsApp</span>
@@ -588,21 +557,21 @@ export default async function HomePage() {
         </section>
 
         {/* ====================================================================
-            SECCIÓN 8 — CONTACTO Y SOLICITUD DE INFORMACIÓN (FORMULARIO + WHATSAPP)
+            SECCIÓN 8 — CONTACTO Y SOLICITUD DE INFORMACIÓN
             ==================================================================== */}
         <section
           id="contacto"
-          className="mx-auto max-w-7xl scroll-mt-28 px-4 py-20 sm:px-6"
+          className="mx-auto max-w-7xl scroll-mt-24 px-4 py-20 sm:px-6 lg:px-8"
         >
           <div className="grid gap-10 lg:grid-cols-12 lg:items-start">
             {/* Columna Izquierda: Mensaje y WhatsApp Directo */}
             <div className="space-y-6 lg:col-span-5">
               <ScrollReveal>
                 <div className="space-y-3">
-                  <span className="text-xs font-black tracking-widest text-[#FF2E63] uppercase">
+                  <span className="text-xs font-bold tracking-widest text-[#FF007A] uppercase">
                     Canales directos de consulta
                   </span>
-                  <h2 className="text-3xl font-black tracking-tight text-white sm:text-4xl">
+                  <h2 className="font-display text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
                     Hablemos de tu establecimiento.
                   </h2>
                   <p className="text-sm leading-relaxed text-slate-300">
@@ -612,31 +581,31 @@ export default async function HomePage() {
               </ScrollReveal>
 
               {/* Tarjeta de Contacto Directo por WhatsApp */}
-              <ScrollReveal delayMs={100}>
-                <div className="rounded-3xl border border-emerald-500/35 bg-gradient-to-b from-[#0A1A17]/80 to-[#050D0C]/90 p-6 backdrop-blur-xl shadow-[0_15px_40px_rgba(16,185,129,0.15)] space-y-4">
+              <ScrollReveal delayMs={80}>
+                <div className="rounded-[2rem] border border-emerald-500/25 bg-[#081211]/85 p-6 backdrop-blur-xl space-y-4 shadow-[0_15px_40px_rgba(0,0,0,0.6)]">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500 text-slate-950 shadow-[0_0_20px_#10B981]">
-                      <MessageCircle className="h-6 w-6" />
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500 text-slate-950 shadow-[0_0_16px_rgba(16,185,129,0.4)]">
+                      <MessageCircle className="h-5 w-5" />
                     </div>
                     <div>
-                      <span className="text-[10px] font-black tracking-widest text-emerald-400 uppercase">
-                        ATENCIÓN COMERCIAL INMEDIATA
+                      <span className="text-[10px] font-bold tracking-widest text-emerald-400 uppercase">
+                        ATENCIÓN COMERCIAL DIRECTA
                       </span>
-                      <h3 className="text-lg font-black text-white">
-                        WhatsApp Directo
+                      <h3 className="font-display text-base font-bold text-white">
+                        WhatsApp Oficial
                       </h3>
                     </div>
                   </div>
 
                   <p className="text-xs text-slate-300 leading-relaxed">
-                    Escribinos directo a nuestra línea comercial. Respondemos tus consultas al instante:
+                    Escribinos directo a nuestra línea comercial. Te respondemos al instante:
                   </p>
 
-                  <div className="rounded-2xl border border-white/10 bg-black/40 p-3.5 text-center">
-                    <span className="block text-xs text-slate-400 font-bold uppercase tracking-wider">
+                  <div className="rounded-xl border border-white/[0.08] bg-black/40 p-3 text-center">
+                    <span className="block text-[11px] text-slate-400 font-medium uppercase tracking-wider">
                       Línea comercial Argentina
                     </span>
-                    <strong className="text-lg font-black text-white tracking-wider sm:text-xl">
+                    <strong className="font-display text-base sm:text-lg font-bold text-white tracking-wider">
                       +54 9 223 623-7874
                     </strong>
                   </div>
@@ -645,10 +614,10 @@ export default async function HomePage() {
                     href={WHATSAPP_DIRECT_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 py-3.5 text-xs font-black uppercase text-slate-950 transition-all hover:bg-emerald-400 active:scale-95 shadow-[0_0_24px_rgba(16,185,129,0.4)]"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 py-3 text-xs font-bold uppercase tracking-wide text-slate-950 transition-all hover:bg-emerald-400 active:scale-95 shadow-[0_0_20px_rgba(16,185,129,0.3)]"
                   >
                     <span>Iniciar conversación por WhatsApp</span>
-                    <ArrowRight className="h-4 w-4" />
+                    <ArrowRight className="h-3.5 w-3.5" />
                   </a>
                 </div>
               </ScrollReveal>
@@ -656,7 +625,7 @@ export default async function HomePage() {
 
             {/* Columna Derecha: Formulario Comercial Profesional */}
             <div className="lg:col-span-7">
-              <ScrollReveal delayMs={120}>
+              <ScrollReveal delayMs={100}>
                 <CommercialContactForm />
               </ScrollReveal>
             </div>
@@ -666,20 +635,16 @@ export default async function HomePage() {
         {/* ====================================================================
             SECCIÓN 9 — CTA FINAL
             ==================================================================== */}
-        <section className="mx-auto max-w-7xl px-4 pt-4 pb-20 sm:px-6">
+        <section className="mx-auto max-w-7xl px-4 pt-4 pb-20 sm:px-6 lg:px-8">
           <ScrollReveal>
-            <div className="relative overflow-hidden rounded-[2.5rem] border border-white/15 bg-[#0A0C14]/90 px-6 py-14 text-center sm:px-12 sm:py-20 shadow-[0_20px_70px_rgba(0,0,0,0.8)]">
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,46,99,0.22),rgba(0,240,255,0.08)_45%,transparent_75%)]"
-              />
+            <div className="relative overflow-hidden rounded-[2.25rem] border border-white/[0.1] bg-[#090b14]/90 px-6 py-14 text-center sm:px-12 sm:py-20 shadow-[0_20px_60px_rgba(0,0,0,0.8)]">
               <div className="relative z-10 mx-auto max-w-2xl space-y-6">
-                <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1 text-xs font-black tracking-widest text-[#00F0FF] uppercase">
-                  <Sparkles className="h-3.5 w-3.5 text-[#FF2E63]" />
+                <span className="inline-flex items-center gap-2 rounded-full border border-white/[0.1] bg-white/[0.04] px-3.5 py-1 text-xs font-bold tracking-widest text-[#00F0FF] uppercase">
+                  <Sparkles className="h-3.5 w-3.5 text-[#FF007A]" />
                   Transformá la noche de tu boliche
                 </span>
 
-                <h2 className="text-3xl font-black tracking-tight text-white sm:text-5xl">
+                <h2 className="font-display text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
                   La próxima gran experiencia de tu boliche empieza acá.
                 </h2>
 
@@ -687,10 +652,10 @@ export default async function HomePage() {
                   Conocé una nueva forma de gestionar los pedidos y ofrecer una experiencia digital a tus clientes.
                 </p>
 
-                <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
+                <div className="flex flex-wrap items-center justify-center gap-3.5 pt-2">
                   <a
                     href="#contacto"
-                    className="bo-btn-laser inline-flex items-center gap-3 rounded-2xl bg-[#FF2E63] px-8 py-4 text-xs font-black tracking-wider text-white uppercase shadow-[0_0_35px_rgba(255,46,99,0.55)] transition-transform hover:scale-105 active:scale-95"
+                    className="bo-btn-laser inline-flex items-center gap-2.5 rounded-xl bg-[#FF007A] px-7 py-3.5 text-xs font-bold tracking-wider text-white uppercase shadow-[0_0_24px_rgba(255,0,122,0.38)] transition-all hover:scale-[1.02] active:scale-[0.98]"
                   >
                     <span>Quiero sumar mi boliche</span>
                     <ArrowRight className="h-4 w-4" />
@@ -700,7 +665,7 @@ export default async function HomePage() {
                     href={WHATSAPP_DIRECT_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-2xl border border-white/20 bg-white/5 px-7 py-4 text-xs font-black tracking-wider text-slate-100 uppercase backdrop-blur-md hover:bg-white/10 transition-all"
+                    className="inline-flex items-center gap-2 rounded-xl border border-white/[0.15] bg-white/[0.04] px-6 py-3.5 text-xs font-bold tracking-wider text-slate-200 uppercase backdrop-blur-md hover:bg-white/[0.08] hover:text-white transition-all"
                   >
                     <MessageCircle className="h-4 w-4 text-emerald-400" />
                     <span>Consultar por WhatsApp</span>
@@ -715,47 +680,44 @@ export default async function HomePage() {
       {/* ====================================================================
           FOOTER PROFESIONAL Y LIMPIO
           ==================================================================== */}
-      <footer className="relative z-10 border-t border-white/10 bg-[#030306] py-12 text-xs text-slate-400">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 space-y-8">
+      <footer className="relative z-10 border-t border-white/[0.08] bg-[#040407] py-12 text-xs text-slate-400">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-8">
           <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
             <div className="flex items-center gap-3">
               <img
                 src="/logo-barraonline.png"
-                alt="BarraOnline — Pedí • Pagá • Retirá"
-                className="h-9 w-auto object-contain drop-shadow-[0_0_14px_rgba(255,0,204,0.3)] sm:h-10"
+                alt="BarraOnline"
+                className="h-8 w-auto object-contain sm:h-9"
               />
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-3 max-w-xl text-slate-300">
-              <strong className="text-white">+18 Ley 24.788:</strong> Prohibida la
-              venta y entrega de bebidas alcohólicas a menores de 18 años. Beber
-              con moderación.
+            <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] px-4 py-2.5 max-w-xl text-slate-300 text-xs">
+              <strong className="text-white">+18 Ley 24.788:</strong> Prohibida la venta y entrega de bebidas alcohólicas a menores de 18 años. Beber con moderación.
             </div>
           </div>
 
-          <div className="flex flex-col justify-between gap-4 border-t border-white/10 pt-6 text-[11px] text-slate-500 sm:flex-row">
+          <div className="flex flex-col justify-between gap-4 border-t border-white/[0.06] pt-6 text-[11px] text-slate-500 sm:flex-row">
             <p>
-              © {new Date().getFullYear()} BarraOnline. Todos los derechos
-              reservados.
+              © {new Date().getFullYear()} BarraOnline. Todos los derechos reservados.
             </p>
             <div className="flex flex-wrap gap-4">
-              <a href="#boliches" className="hover:text-slate-300 transition">
+              <a href="#boliches" className="hover:text-slate-300 transition-colors">
                 Boliches Adheridos
               </a>
               <span>•</span>
-              <a href="#como-funciona" className="hover:text-slate-300 transition">
+              <a href="#como-funciona" className="hover:text-slate-300 transition-colors">
                 Cómo Funciona
               </a>
               <span>•</span>
-              <a href="#beneficios" className="hover:text-slate-300 transition">
+              <a href="#beneficios" className="hover:text-slate-300 transition-colors">
                 Beneficios
               </a>
               <span>•</span>
-              <a href="#para-boliches" className="hover:text-slate-300 transition">
+              <a href="#para-boliches" className="hover:text-slate-300 transition-colors">
                 Para tu Boliche
               </a>
               <span>•</span>
-              <a href="#contacto" className="hover:text-slate-300 transition">
+              <a href="#contacto" className="hover:text-slate-300 transition-colors">
                 Contacto Comercial
               </a>
             </div>

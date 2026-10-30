@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   AlertCircle,
@@ -11,7 +11,6 @@ import {
   Lock,
   Mail,
   ShieldCheck,
-  User,
   X,
 } from 'lucide-react';
 
@@ -40,6 +39,16 @@ export function UnifiedAuthModal({
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Soporte para tecla Escape
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -71,7 +80,7 @@ export function UnifiedAuthModal({
 
       onClose();
 
-      // Redirección inteligente calculada exclusivamente por el servidor
+      // Redirección inteligente
       if (data.redirectUrl && data.redirectUrl !== window.location.pathname) {
         router.push(data.redirectUrl);
       }
@@ -97,36 +106,26 @@ export function UnifiedAuthModal({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="relative w-full max-w-md overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-b from-[#141624] via-[#0D0F1A] to-[#080911] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.95)] sm:p-8 animate-in zoom-in-95 duration-200">
-        {/* Glows ambientales de escenario */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -top-16 -right-16 h-48 w-48 rounded-full bg-[#00F0FF]/15 blur-3xl"
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-[#FF2E63]/15 blur-3xl"
-        />
-
+      <div className="relative w-full max-w-md overflow-hidden rounded-[2rem] border border-white/[0.12] bg-gradient-to-b from-[#121422] via-[#0d0f18] to-[#080911] p-6 sm:p-8 shadow-[0_24px_70px_rgba(0,0,0,0.95)] animate-in zoom-in-95 duration-200">
         {/* Botón cerrar */}
         <button
           type="button"
           onClick={onClose}
           aria-label="Cerrar ventana"
-          className="absolute top-5 right-5 flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-400 transition-colors hover:border-white/20 hover:text-white"
+          className="absolute top-5 right-5 flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] text-slate-400 transition-colors hover:border-white/[0.16] hover:text-white"
         >
           <X className="h-4 w-4" />
         </button>
 
         {/* Cabecera unificada */}
         <div className="mb-6 space-y-1.5">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-[#00F0FF]/30 bg-[#00F0FF]/10 px-2.5 py-0.5 text-[10px] font-black tracking-widest text-[#00F0FF] uppercase">
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.04] px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-[#00F0FF] uppercase">
             <ShieldCheck className="h-3 w-3" />
             <span>Acceso Seguro Unificado</span>
           </div>
           <h2
             id="unified-auth-modal-title"
-            className="text-2xl font-black tracking-tight text-white"
+            className="font-display text-2xl font-bold tracking-tight text-white"
           >
             Iniciar sesión
           </h2>
@@ -138,7 +137,7 @@ export function UnifiedAuthModal({
         {errorMessage && (
           <div
             role="alert"
-            className="mb-5 flex items-start gap-3 rounded-2xl border border-rose-500/40 bg-rose-500/10 p-3.5 text-xs font-semibold text-rose-200 animate-in fade-in"
+            className="mb-5 flex items-start gap-3 rounded-xl border border-rose-500/35 bg-rose-500/10 p-3.5 text-xs font-semibold text-rose-200 animate-in fade-in"
           >
             <AlertCircle className="h-4 w-4 shrink-0 text-rose-400 mt-0.5" />
             <span>{errorMessage}</span>
@@ -152,7 +151,7 @@ export function UnifiedAuthModal({
               href={`/api/auth/google/start?slug=${encodeURIComponent(
                 initialTenantSlug || 'landing'
               )}`}
-              className="flex w-full items-center justify-center gap-3 rounded-xl border border-white/20 bg-white px-4 py-3 text-xs font-black text-slate-900 transition-all hover:bg-slate-100 shadow-[0_4px_20px_rgba(255,255,255,0.12)] active:scale-[0.99]"
+              className="flex w-full items-center justify-center gap-3 rounded-xl border border-white/[0.2] bg-white px-4 py-3 text-xs font-bold text-slate-950 transition-all hover:bg-slate-100 shadow-sm active:scale-[0.99]"
             >
               <svg className="h-4 w-4" viewBox="0 0 24 24">
                 <path
@@ -177,9 +176,9 @@ export function UnifiedAuthModal({
           </div>
 
           <div className="relative my-4 flex items-center justify-center">
-            <div className="w-full border-t border-white/10" />
-            <span className="absolute bg-[#0D0F1A] px-3 text-[10px] font-black tracking-widest text-slate-500 uppercase">
-              o con tus credenciales
+            <div className="w-full border-t border-white/[0.08]" />
+            <span className="absolute bg-[#0d0f18] px-3 text-[10px] font-bold tracking-widest text-slate-500 uppercase">
+              o con credenciales
             </span>
           </div>
 
@@ -188,7 +187,7 @@ export function UnifiedAuthModal({
             <div>
               <label
                 htmlFor="auth-email-input"
-                className="mb-1 block text-xs font-bold text-slate-300"
+                className="mb-1 block text-xs font-semibold text-slate-300"
               >
                 Correo electrónico
               </label>
@@ -202,7 +201,7 @@ export function UnifiedAuthModal({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="tu@correo.com"
-                  className="w-full rounded-xl border border-white/15 bg-white/5 py-2.5 pr-4 pl-10 text-xs text-white placeholder-slate-500 transition-all focus:border-[#00F0FF] focus:bg-white/10 focus:outline-none"
+                  className="w-full rounded-xl border border-white/[0.1] bg-black/40 py-2.5 pr-4 pl-10 text-xs text-white placeholder-slate-500 transition-all focus:border-[#FF007A] focus:outline-none"
                 />
               </div>
             </div>
@@ -210,7 +209,7 @@ export function UnifiedAuthModal({
             <div>
               <label
                 htmlFor="auth-password-input"
-                className="mb-1 block text-xs font-bold text-slate-300"
+                className="mb-1 block text-xs font-semibold text-slate-300"
               >
                 Contraseña
               </label>
@@ -224,7 +223,7 @@ export function UnifiedAuthModal({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className="w-full rounded-xl border border-white/15 bg-white/5 py-2.5 pr-10 pl-10 text-xs text-white placeholder-slate-500 transition-all focus:border-[#FF2E63] focus:bg-white/10 focus:outline-none"
+                  className="w-full rounded-xl border border-white/[0.1] bg-black/40 py-2.5 pr-10 pl-10 text-xs text-white placeholder-slate-500 transition-all focus:border-[#FF007A] focus:outline-none"
                 />
                 <button
                   type="button"
@@ -244,7 +243,7 @@ export function UnifiedAuthModal({
             <button
               type="submit"
               disabled={loading}
-              className="bo-btn-laser mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-[#FF2E63] py-3 text-xs font-black tracking-wider text-white uppercase shadow-[0_0_24px_rgba(255,46,99,0.5)] transition-all hover:brightness-110 disabled:opacity-50"
+              className="bo-btn-laser mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-[#FF007A] py-3 text-xs font-bold tracking-wider text-white uppercase shadow-[0_0_22px_rgba(255,0,122,0.38)] transition-all hover:bg-[#FF1A8C] disabled:opacity-50"
             >
               {loading ? (
                 <>
