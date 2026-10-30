@@ -23,6 +23,8 @@ export interface ClubCardProps {
   heroBadge: string;
   tagline: string;
   index: number;
+  isFeatured?: boolean;
+  commercialTag?: string | null;
 }
 
 export function SpotlightClubCard({
@@ -36,6 +38,8 @@ export function SpotlightClubCard({
   heroBadge,
   tagline,
   index,
+  isFeatured,
+  commercialTag,
 }: ClubCardProps) {
   const cardRef = useRef<HTMLElement | null>(null);
   const [spotlight, setSpotlight] = useState({
@@ -143,6 +147,19 @@ export function SpotlightClubCard({
                 <GlassWater className="h-3.5 w-3.5" />
                 {city} • {heroBadge}
               </span>
+
+              {isFeatured && (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/50 bg-amber-400/15 px-3 py-1 text-[11px] font-black tracking-wider text-amber-300 uppercase shadow-[0_0_16px_rgba(251,191,36,0.3)]">
+                  <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+                  {commercialTag || 'DESTACADO'}
+                </span>
+              )}
+
+              {!isFeatured && commercialTag && (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#00F0FF]/40 bg-[#00F0FF]/10 px-3 py-1 text-[11px] font-black tracking-wider text-[#00F0FF] uppercase">
+                  {commercialTag}
+                </span>
+              )}
             </div>
 
             <h3 className="text-2xl font-black tracking-tight text-white sm:text-3xl">

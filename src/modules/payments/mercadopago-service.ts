@@ -116,11 +116,12 @@ export async function saveTenantMercadoPagoOAuthCredentials(params: {
 
     await tx.query(
       `INSERT INTO audit_logs (tenant_id, actor_user_id, actor_role, action, entity_type, entity_id, after_state)
-       VALUES ($1::uuid, $2, $3, 'MP_OAUTH_CONNECTED', 'tenant_mp_credentials', $1::text, $4::jsonb)`,
+       VALUES ($1::uuid, $2, $3, 'MP_OAUTH_CONNECTED', 'tenant_mp_credentials', $4, $5::jsonb)`,
       [
         params.tenantId,
         params.actorUserId ?? null,
         params.actorRole,
+        String(params.tenantId),
         JSON.stringify({
           mp_user_id: params.mpUserId,
           connection_status: 'CONNECTED',
@@ -218,6 +219,14 @@ export async function createMercadoPagoPreferenceForOrder(params: {
       throw new Error('Pedido no encontrado.');
     }
 
+    const tenantRes = await tx.query<{ slug: string }>(
+      `SELECT slug FROM tenants WHERE id = $1 LIMIT 1`,
+      [params.tenantId]
+    );
+    const tenantSlug = tenantRes.rows[0]?.slug || 'museum';
+    const appUrl = (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000').replace(/\/$/, '');
+    const returnBase = `${appUrl}/b/${tenantSlug}`;
+
     const itemsRes = await tx.query<{
       product_id: string;
       product_name_snapshot: string;
@@ -231,7 +240,7 @@ export async function createMercadoPagoPreferenceForOrder(params: {
     );
 
     // Payload oficial de Mercado Pago Checkout Pro (/checkout/preferences)
-    // Notar ausencia deliberada de marketplace_fee / application_fee (Sin Split)
+    // Marca Blanca: back_urls garantiza retorno irrestricto al establecimiento de origen
     const mpPreferencePayload: Record<string, unknown> = {
       items: itemsRes.rows.map((item) => ({
         id: item.product_id,
@@ -245,11 +254,18 @@ export async function createMercadoPagoPreferenceForOrder(params: {
       expires: true,
       expiration_date_from: new Date().toISOString(),
       expiration_date_to: new Date(order.expires_at).toISOString(),
+      back_urls: {
+        success: `${returnBase}?step=4&order_id=${order.id}&status=approved`,
+        pending: `${returnBase}?step=3&order_id=${order.id}&status=pending`,
+        failure: `${returnBase}?step=3&order_id=${order.id}&status=failure`,
+      },
+      auto_return: 'approved',
       payment_methods: {
         excluded_payment_types: [{ id: 'ticket' }, { id: 'atm' }],
       },
       metadata: {
         tenant_id: params.tenantId,
+        tenant_slug: tenantSlug,
         order_id: order.id,
         order_number: order.order_number,
       },

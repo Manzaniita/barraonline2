@@ -54,6 +54,11 @@ CREATE TABLE IF NOT EXISTS tenants (
     reservation_ttl_seconds INTEGER NOT NULL DEFAULT 420 CHECK (reservation_ttl_seconds BETWEEN 60 AND 900),
     allow_bartender_conflict_resolution BOOLEAN NOT NULL DEFAULT true,
     theme_config JSONB NOT NULL DEFAULT '{}'::jsonb,
+    is_published BOOLEAN NOT NULL DEFAULT true,
+    is_featured BOOLEAN NOT NULL DEFAULT false,
+    is_visible_on_landing BOOLEAN NOT NULL DEFAULT true,
+    sort_order SMALLINT NOT NULL DEFAULT 0,
+    commercial_tag VARCHAR(60),
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -64,12 +69,26 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(320) UNIQUE,
     full_name VARCHAR(160) NOT NULL,
     avatar_url TEXT,
+    password_hash VARCHAR(255),
     is_superadmin BOOLEAN NOT NULL DEFAULT false,
+    status VARCHAR(24) NOT NULL DEFAULT 'ACTIVE',
+    session_version INTEGER NOT NULL DEFAULT 1,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- Tickets de intercambio de un solo uso para autenticación entre subdominios
+-- Compatibilidad retroactiva de columnas para tenants y users
+ALTER TABLE tenants ADD COLUMN IF NOT EXISTS is_published BOOLEAN NOT NULL DEFAULT true;
+ALTER TABLE tenants ADD COLUMN IF NOT EXISTS is_featured BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE tenants ADD COLUMN IF NOT EXISTS is_visible_on_landing BOOLEAN NOT NULL DEFAULT true;
+ALTER TABLE tenants ADD COLUMN IF NOT EXISTS sort_order SMALLINT NOT NULL DEFAULT 0;
+ALTER TABLE tenants ADD COLUMN IF NOT EXISTS commercial_tag VARCHAR(60);
+
+ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS status VARCHAR(24) NOT NULL DEFAULT 'ACTIVE';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS session_version INTEGER NOT NULL DEFAULT 1;
+
 CREATE TABLE IF NOT EXISTS auth_exchange_tickets (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     ticket_hash VARCHAR(64) NOT NULL UNIQUE,

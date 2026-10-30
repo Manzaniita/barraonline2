@@ -34,6 +34,8 @@ import {
   X,
 } from 'lucide-react';
 import { formatArsFromCents } from '@/lib/format';
+import { LogoutModal } from '@/components/auth/LogoutModal';
+import { LogOut } from 'lucide-react';
 
 interface CatalogCategory {
   id: string;
@@ -198,6 +200,7 @@ function BarraOnlineExpressContent() {
   const [revalidationNotices, setRevalidationNotices] = useState<string[]>([]);
   const [recentOrders, setRecentOrders] = useState<AuthorizedOrderView[]>([]);
   const [showMyOrdersDrawer, setShowMyOrdersDrawer] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   // Estados de Pago (Paso 3) y QR Confirmado (Paso 4)
   const [submitting, setSubmitting] = useState(false);
@@ -955,12 +958,13 @@ function BarraOnlineExpressContent() {
         <h1 className="text-2xl font-black text-white">
           Establecimiento no disponible
         </h1>
-        <Link
-          href="/"
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
           className="rounded-xl bg-white/10 px-5 py-2.5 text-sm font-bold text-white hover:bg-white/15"
         >
-          Volver a BarraOnline
-        </Link>
+          Reintentar conexión
+        </button>
       </div>
     );
   }
@@ -1018,13 +1022,14 @@ function BarraOnlineExpressContent() {
                   <ArrowLeft className="h-4 w-4" />
                 </button>
               ) : (
-                <Link
-                  href="/"
-                  aria-label="Volver al inicio de BarraOnline"
+                <button
+                  type="button"
+                  onClick={() => handleBackToStep(1)}
+                  aria-label={`Inicio de ${tenant.fantasy_name}`}
                   className="bo-gpu-transition flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-white/5 text-slate-300 hover:border-white/30 hover:text-white"
                 >
-                  <ArrowLeft className="h-4 w-4" />
-                </Link>
+                  <GlassWater className="h-4 w-4" style={{ color: accent }} />
+                </button>
               )}
 
               <div className="min-w-0">
@@ -1051,9 +1056,18 @@ function BarraOnlineExpressContent() {
 
             <div className="flex shrink-0 items-center gap-2">
               {customer && (
-                <div className="hidden items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.04] px-3 py-1 text-xs font-bold text-slate-200 sm:flex">
-                  <UserCheck className="h-3.5 w-3.5 text-[#00F0FF]" />
-                  <span className="max-w-[8rem] truncate">{customer.fullName}</span>
+                <div className="flex items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.04] pl-3 pr-1.5 py-1 text-xs font-bold text-slate-200">
+                  <UserCheck className="h-3.5 w-3.5" style={{ color: accentSecondary }} />
+                  <span className="max-w-[7rem] truncate">{customer.fullName}</span>
+                  <button
+                    type="button"
+                    onClick={() => setShowLogoutModal(true)}
+                    title="Cerrar sesión en este boliche"
+                    aria-label="Cerrar sesión en este boliche"
+                    className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-white/10 text-slate-400 hover:text-rose-400 transition-colors ml-1"
+                  >
+                    <LogOut className="h-3 w-3" />
+                  </button>
                 </div>
               )}
 

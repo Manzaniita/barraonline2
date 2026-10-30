@@ -11,6 +11,7 @@ import {
   saveTenantMercadoPagoOAuthCredentials,
 } from '@/modules/payments/mercadopago-service';
 import { sanitizeAndValidateThemeConfig } from '@/modules/tenancy/tenant-service';
+import { ensureSuperadminAccountInitialized } from '@/modules/identity/admin-auth-service';
 
 export const SEED_IDS = {
   SUPERADMIN_USER: '00000000-0000-4000-8000-000000000001',
@@ -30,7 +31,10 @@ const globalForSeed = globalThis as unknown as {
 
 export async function ensureDemoDataSeeded(): Promise<void> {
   if (!globalForSeed.__boSeededPromise) {
-    globalForSeed.__boSeededPromise = runDemoSeed().catch((err) => {
+    globalForSeed.__boSeededPromise = (async () => {
+      await runDemoSeed();
+      await ensureSuperadminAccountInitialized();
+    })().catch((err) => {
       globalForSeed.__boSeededPromise = undefined;
       throw err;
     });
@@ -77,10 +81,11 @@ async function runDemoSeed(): Promise<void> {
       `INSERT INTO tenants (
          id, slug, legal_name, fantasy_name, cuit, city, address,
          status, business_day_cutoff_hour, alcohol_cutoff_hour,
-         reservation_ttl_seconds, allow_bartender_conflict_resolution, theme_config
+         reservation_ttl_seconds, allow_bartender_conflict_resolution, theme_config,
+         is_published, is_featured, is_visible_on_landing, sort_order, commercial_tag
        ) VALUES
-         ($1, 'museum', 'Complejo Nocturno Costanera S.A.', 'Museum Ocean Club', '30-71548921-9', 'Mar del Plata', 'Complejo Playa Grande Sector 4', 'ACTIVE', 10, 5, 420, true, $3::jsonb),
-         ($2, 'pueblo-limite', 'Entretenimientos Gesell S.R.L.', 'Pueblo Límite', '30-71892340-4', 'Villa Gesell', 'Av. Buenos Aires 2600', 'ACTIVE', 10, 5, 420, true, $4::jsonb)
+         ($1, 'museum', 'Complejo Nocturno Costanera S.A.', 'Museum Ocean Club', '30-71548921-9', 'Mar del Plata', 'Complejo Playa Grande Sector 4', 'ACTIVE', 10, 5, 420, true, $3::jsonb, true, true, true, 1, 'TEMPORADA 2026'),
+         ($2, 'pueblo-limite', 'Entretenimientos Gesell S.R.L.', 'Pueblo Límite', '30-71892340-4', 'Villa Gesell', 'Av. Buenos Aires 2600', 'ACTIVE', 10, 5, 420, true, $4::jsonb, true, false, true, 2, 'VILLA GESELL')
        ON CONFLICT (id) DO NOTHING`,
       [
         SEED_IDS.MUSEUM_TENANT,

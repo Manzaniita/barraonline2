@@ -9,7 +9,9 @@ import {
 } from '@/modules/identity/customer-auth-service';
 
 export async function GET(request: NextRequest) {
-  const slug = (request.nextUrl.searchParams.get('slug') || '').trim().toLowerCase();
+  const rawSlug = (request.nextUrl.searchParams.get('slug') || '').trim().toLowerCase();
+  const slug = rawSlug || 'landing';
+
   const stepParam = Number.parseInt(
     request.nextUrl.searchParams.get('step') || '3',
     10
@@ -18,7 +20,7 @@ export async function GET(request: NextRequest) {
     ? Math.min(4, Math.max(1, stepParam))
     : 3;
 
-  if (!slug || !/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/.test(slug)) {
+  if (slug !== 'landing' && !/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/.test(slug)) {
     return NextResponse.json(
       { error: 'INVALID_TENANT_SLUG', message: 'Establecimiento inválido.' },
       { status: 400 }
@@ -31,8 +33,14 @@ export async function GET(request: NextRequest) {
   const newGuestCookie = existingGuestSid ? null : createSignedGuestSessionToken();
 
   if (!isGoogleOAuthConfigured()) {
-    const fallbackUrl = new URL(`/b/${slug}`, request.url);
-    fallbackUrl.searchParams.set('step', '2');
+    const fallbackUrl =
+      slug === 'landing'
+        ? new URL('/', request.url)
+        : new URL(`/b/${slug}`, request.url);
+
+    if (slug !== 'landing') {
+      fallbackUrl.searchParams.set('step', '2');
+    }
     fallbackUrl.searchParams.set('auth_notice', 'google_credentials_missing');
     const resp = NextResponse.redirect(fallbackUrl);
     if (newGuestCookie) {

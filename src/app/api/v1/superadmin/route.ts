@@ -8,9 +8,22 @@ import {
   recordManualSettlementPayment,
 } from '@/modules/billing-settlements/settlement-service';
 import { updateTenantStatusBySuperadmin } from '@/modules/tenancy/tenant-service';
+import {
+  ADMIN_SESSION_COOKIE,
+  verifySuperadminSessionServerSide,
+} from '@/modules/identity/admin-auth-service';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   await ensureDemoDataSeeded();
+
+  const adminToken = request.cookies.get(ADMIN_SESSION_COOKIE)?.value;
+  const admin = await verifySuperadminSessionServerSide(adminToken);
+  if (!admin || !admin.isSuperadmin) {
+    return NextResponse.json(
+      { error: 'No autorizado. Acceso exclusivo para superadministradores.' },
+      { status: 401 }
+    );
+  }
 
   const data = await withSuperadminContext(async (tx) => {
     const tenantsRes = await tx.query<{
@@ -176,6 +189,15 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   await ensureDemoDataSeeded();
+
+  const adminToken = request.cookies.get(ADMIN_SESSION_COOKIE)?.value;
+  const admin = await verifySuperadminSessionServerSide(adminToken);
+  if (!admin || !admin.isSuperadmin) {
+    return NextResponse.json(
+      { error: 'No autorizado. Acceso exclusivo para superadministradores.' },
+      { status: 401 }
+    );
+  }
 
   try {
     const body = (await request.json()) as {

@@ -18,6 +18,7 @@ import { NightlifeAtmosphereCanvas } from '@/components/experience/NightlifeAtmo
 import { HeroInteractiveStage } from '@/components/experience/HeroInteractiveStage';
 import { LiveOrderJourneySimulator } from '@/components/experience/LiveOrderJourneySimulator';
 import { SpotlightClubCard } from '@/components/experience/SpotlightClubCard';
+import { LandingHeader } from '@/components/LandingHeader';
 import { ScrollReveal } from '@/components/experience/ScrollReveal';
 
 export const dynamic = 'force-dynamic';
@@ -40,61 +41,8 @@ export default async function HomePage() {
       {/* Motor de Atmósfera Nocturna en Vivo (Canvas 60fps + Luces de Escenario + Partículas) */}
       <NightlifeAtmosphereCanvas />
 
-      {/* Navegación Flotante Tipo Cápsula (Glassmorphic HUD) */}
-      <header className="sticky top-0 z-40 px-4 pt-4 sm:px-6">
-        <div className="bo-glass-pill mx-auto flex max-w-7xl items-center justify-between rounded-2xl px-4 py-3 sm:px-6">
-          <a href="#" className="group flex items-center gap-3">
-            <img
-              src="/logo-barraonline.png"
-              alt="BarraOnline — Pedí • Pagá • Retirá"
-              className="h-10 w-auto object-contain drop-shadow-[0_0_16px_rgba(0,229,255,0.35)] transition-transform duration-300 group-hover:scale-105 sm:h-11"
-            />
-            <span className="hidden rounded-full border border-[#00F0FF]/30 bg-[#00F0FF]/10 px-2.5 py-0.5 text-[10px] font-extrabold tracking-widest text-[#00F0FF] uppercase lg:inline-block">
-              Costa Argentina
-            </span>
-          </a>
-
-          <nav
-            aria-label="Navegación principal"
-            className="hidden items-center gap-7 text-xs font-extrabold tracking-wider text-slate-300 uppercase md:flex"
-          >
-            <a
-              href="#boliches"
-              className="transition-colors hover:text-[#00F0FF]"
-            >
-              Boliches adheridos
-            </a>
-            <a
-              href="#como-funciona"
-              className="transition-colors hover:text-[#FF2E63]"
-            >
-              Cómo funciona
-            </a>
-            <a
-              href="#ventajas"
-              className="transition-colors hover:text-white"
-            >
-              La experiencia
-            </a>
-            <a
-              href="#para-boliches"
-              className="transition-colors hover:text-[#00F0FF]"
-            >
-              Sumá tu boliche
-            </a>
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <a
-              href="#boliches"
-              className="bo-btn-laser inline-flex items-center gap-2 rounded-xl bg-[#FF2E63] px-4 py-2.5 text-xs font-black tracking-wider text-white uppercase shadow-[0_0_24px_rgba(255,46,99,0.5)]"
-            >
-              <span>Hacer mi pedido</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </a>
-          </div>
-        </div>
-      </header>
+      {/* Header Sticky con Autenticación Multi-Rol, Mis Pedidos y Acceso Administrativo */}
+      <LandingHeader />
 
       <main className="relative z-10">
         {/* ====================================================================
@@ -271,6 +219,8 @@ export default async function HomePage() {
                     tenant.theme_config?.tagline ||
                     'Pedí tus bebidas desde la pista, pagá seguro y retirá con QR sin hacer filas.'
                   }
+                  isFeatured={tenant.is_featured}
+                  commercialTag={tenant.commercial_tag}
                   index={idx}
                 />
               </ScrollReveal>

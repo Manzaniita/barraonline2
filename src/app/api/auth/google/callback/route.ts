@@ -34,11 +34,17 @@ export async function GET(request: NextRequest) {
   }
 
   const tenantSlug = verification.tenantSlug;
+  const isLandingContext = tenantSlug === 'landing';
   const returnStep = verification.returnStep ?? 3;
 
   if (oauthError || !code) {
-    const cancelUrl = new URL(`/b/${tenantSlug}`, request.url);
-    cancelUrl.searchParams.set('step', '2');
+    const cancelUrl = isLandingContext
+      ? new URL('/', request.url)
+      : new URL(`/b/${tenantSlug}`, request.url);
+
+    if (!isLandingContext) {
+      cancelUrl.searchParams.set('step', '2');
+    }
     cancelUrl.searchParams.set('auth_notice', 'google_cancelled');
     const resp = NextResponse.redirect(cancelUrl);
     resp.cookies.delete(GOOGLE_OAUTH_STATE_COOKIE);
@@ -104,7 +110,7 @@ export async function GET(request: NextRequest) {
       throw new Error('GOOGLE_PROFILE_INCOMPLETE');
     }
 
-    const tenant = await getTenantBySlug(tenantSlug);
+    const tenant = isLandingContext ? null : await getTenantBySlug(tenantSlug);
     const guestSessionToken = verifySignedGuestSessionToken(
       request.cookies.get(GUEST_SESSION_COOKIE)?.value
     );
@@ -118,8 +124,13 @@ export async function GET(request: NextRequest) {
       guestSessionToken,
     });
 
-    const destination = new URL(`/b/${tenantSlug}`, request.url);
-    destination.searchParams.set('step', String(returnStep));
+    const destination = isLandingContext
+      ? new URL('/', request.url)
+      : new URL(`/b/${tenantSlug}`, request.url);
+
+    if (!isLandingContext) {
+      destination.searchParams.set('step', String(returnStep));
+    }
     destination.searchParams.set('auth', 'verified');
 
     const response = NextResponse.redirect(destination);
@@ -134,8 +145,13 @@ export async function GET(request: NextRequest) {
 
     return response;
   } catch {
-    const errUrl = new URL(`/b/${tenantSlug}`, request.url);
-    errUrl.searchParams.set('step', '2');
+    const errUrl = isLandingContext
+      ? new URL('/', request.url)
+      : new URL(`/b/${tenantSlug}`, request.url);
+
+    if (!isLandingContext) {
+      errUrl.searchParams.set('step', '2');
+    }
     errUrl.searchParams.set('auth_notice', 'google_auth_failed');
     const resp = NextResponse.redirect(errUrl);
     resp.cookies.delete(GOOGLE_OAUTH_STATE_COOKIE);
