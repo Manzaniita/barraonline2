@@ -11,18 +11,26 @@ import {
   saveTenantMercadoPagoOAuthCredentials,
 } from '@/modules/payments/mercadopago-service';
 import { sanitizeAndValidateThemeConfig } from '@/modules/tenancy/tenant-service';
-import { ensureSuperadminAccountInitialized } from '@/modules/identity/admin-auth-service';
+import {
+  ensureSuperadminAccountInitialized,
+  hashPassword,
+} from '@/modules/identity/admin-auth-service';
 
 export const SEED_IDS = {
   SUPERADMIN_USER: '00000000-0000-4000-8000-000000000001',
   MUSEUM_TENANT: '11111111-1111-4111-8111-111111111111',
   PUEBLO_TENANT: '22222222-2222-4222-8222-222222222222',
+  MUSEUM_OWNER: '11111111-9999-4111-8111-111111111111',
   MUSEUM_BARTENDER: '11111111-aaaa-4111-8111-111111111111',
   MUSEUM_MANAGER: '11111111-bbbb-4111-8111-111111111111',
   MUSEUM_STATION_MAIN: '11111111-cccc-4111-8111-111111111111',
   MUSEUM_STATION_VIP: '11111111-dddd-4111-8111-111111111111',
   PUEBLO_BARTENDER: '22222222-aaaa-4222-8222-222222222222',
   PUEBLO_STATION_MAIN: '22222222-cccc-4222-8222-222222222222',
+  MUSEUM_OWNER_USER: '11111111-0000-4111-8111-111111111001',
+  MUSEUM_MANAGER_USER: '11111111-0000-4111-8111-111111111002',
+  MUSEUM_BARTENDER_USER: '11111111-0000-4111-8111-111111111003',
+  DEMO_CUSTOMER_USER: '33333333-0000-4333-8333-333333333001',
 };
 
 const globalForSeed = globalThis as unknown as {
@@ -68,13 +76,39 @@ async function runDemoSeed(): Promise<void> {
     logoText: 'PUEBLO LÍMITE',
   });
 
+  const superadminHash = await hashPassword('TuClaveAdminSegura2026!');
+  const ownerHash = await hashPassword('MuseumDueno2026!');
+  const managerHash = await hashPassword('GerenteMuseum2026!');
+  const bartenderHash = await hashPassword('BarmanMuseum2026!');
+  const customerHash = await hashPassword('ClienteDemo2026!');
+
   await withSuperadminContext(async (tx) => {
     await tx.query(
-      `INSERT INTO users (id, google_sub, email, full_name, is_superadmin)
+      `INSERT INTO users (id, google_sub, email, full_name, password_hash, is_superadmin)
        VALUES
-         ($1, 'google-superadmin-001', 'superadmin@barraonline.com.ar', 'Dirección BarraOnline', true)
+         ($1, 'google-superadmin-001', 'superadmin@barraonline.com.ar', 'Dirección BarraOnline', $2, true)
+       ON CONFLICT (id) DO UPDATE SET password_hash = COALESCE(users.password_hash, EXCLUDED.password_hash)`,
+      [SEED_IDS.SUPERADMIN_USER, superadminHash]
+    );
+
+    await tx.query(
+      `INSERT INTO users (id, email, full_name, password_hash, is_superadmin, status)
+       VALUES
+         ($1, 'dueno.museum@barraonline.com.ar', 'Mateo Benítez (Dueño)', $5, false, 'ACTIVE'),
+         ($2, 'sofia.alarcon@museum.com.ar', 'Sofía Alarcón (Encargada General)', $6, false, 'ACTIVE'),
+         ($3, 'tomas.vega@museum.com.ar', 'Tomás Vega (Barman Pista Central)', $7, false, 'ACTIVE'),
+         ($4, 'cliente.demo@gmail.com', 'Valentina Gómez (Cliente Demo)', $8, false, 'ACTIVE')
        ON CONFLICT (id) DO NOTHING`,
-      [SEED_IDS.SUPERADMIN_USER]
+      [
+        SEED_IDS.MUSEUM_OWNER_USER,
+        SEED_IDS.MUSEUM_MANAGER_USER,
+        SEED_IDS.MUSEUM_BARTENDER_USER,
+        SEED_IDS.DEMO_CUSTOMER_USER,
+        ownerHash,
+        managerHash,
+        bartenderHash,
+        customerHash,
+      ]
     );
 
     await tx.query(
@@ -187,12 +221,21 @@ async function runDemoSeed(): Promise<void> {
 
   await withTenantContext(SEED_IDS.MUSEUM_TENANT, async (tx) => {
     await tx.query(
-      `INSERT INTO tenant_users (id, tenant_id, staff_display_name, role)
+      `INSERT INTO tenant_users (id, tenant_id, user_id, staff_display_name, role)
        VALUES
-         ($1, $3, 'Tomás Vega (Barman Pista Central)', 'BARTENDER'),
-         ($2, $3, 'Sofía Alarcón (Encargada General)', 'MANAGER')
-       ON CONFLICT (id) DO NOTHING`,
-      [SEED_IDS.MUSEUM_BARTENDER, SEED_IDS.MUSEUM_MANAGER, SEED_IDS.MUSEUM_TENANT]
+         ($1, $4, $5, 'Mateo Benítez (Dueño)', 'OWNER'),
+         ($2, $4, $6, 'Sofía Alarcón (Encargada General)', 'MANAGER'),
+         ($3, $4, $7, 'Tomás Vega (Barman Pista Central)', 'BARTENDER')
+       ON CONFLICT (id) DO UPDATE SET user_id = EXCLUDED.user_id, role = EXCLUDED.role`,
+      [
+        SEED_IDS.MUSEUM_OWNER,
+        SEED_IDS.MUSEUM_MANAGER,
+        SEED_IDS.MUSEUM_BARTENDER,
+        SEED_IDS.MUSEUM_TENANT,
+        SEED_IDS.MUSEUM_OWNER_USER,
+        SEED_IDS.MUSEUM_MANAGER_USER,
+        SEED_IDS.MUSEUM_BARTENDER_USER,
+      ]
     );
 
     await tx.query(

@@ -245,6 +245,45 @@ export function createSignedAdminSessionToken(user: {
   return signJsonPayload(payload);
 }
 
+export function createSignedUserSessionToken(user: {
+  id: string;
+  email: string;
+  fullName: string;
+  role: string;
+  tenantId?: string | null;
+  tenantSlug?: string | null;
+  tenantName?: string | null;
+  sessionVersion: number;
+  ttlSeconds?: number;
+}): string {
+  const nowSec = Math.floor(Date.now() / 1000);
+  const ttl = user.ttlSeconds ?? ADMIN_SESSION_TTL_SECONDS;
+  const payload: AdminSessionPayload = {
+    userId: user.id,
+    email: user.email,
+    fullName: user.fullName,
+    role: user.role,
+    tenantId: user.tenantId ?? null,
+    tenantSlug: user.tenantSlug ?? null,
+    tenantName: user.tenantName ?? null,
+    sessionVersion: user.sessionVersion,
+    issuedAt: nowSec,
+    expiresAt: nowSec + ttl,
+  };
+  return signJsonPayload(payload);
+}
+
+export function verifySignedUserSessionToken(
+  token: string | null | undefined,
+  nowMs: number = Date.now()
+): AdminSessionPayload | null {
+  const payload = verifySignedJsonPayload<AdminSessionPayload>(token);
+  if (!payload || !payload.userId || !payload.role) return null;
+  const nowSec = Math.floor(nowMs / 1000);
+  if (payload.expiresAt <= nowSec) return null;
+  return payload;
+}
+
 export function verifySignedAdminSessionToken(
   token: string | null | undefined,
   nowMs: number = Date.now()
@@ -391,6 +430,292 @@ export async function loginSuperadmin(params: {
       sessionVersion: user.session_version,
       createdAt: user.created_at,
     },
+    token,
+  };
+}
+
+export type UnifiedRole =
+  | 'SUPERADMIN'
+  | 'ADMIN'
+  | 'DUEÑO'
+  | 'GERENTE'
+  | 'CAJERO'
+  | 'CLIENTE';
+
+export interface UnifiedUserRecord {
+  id: string;
+  email: string;
+  fullName: string;
+  role: UnifiedRole;
+  rawRole: string;
+  tenantId?: string | null;
+  tenantSlug?: string | null;
+  tenantFantasyName?: string | null;
+  status: string;
+  sessionVersion: number;
+}
+
+/**
+ * Verificación autoritativa de sesión para cualquier rol del sistema.
+ */
+export async function verifyUserSessionServerSide(
+  token: string | null | undefined
+): Promise<UnifiedUserRecord | null> {
+  const payload = verifySignedUserSessionToken(token);
+  if (!payload || !payload.userId) return null;
+
+  return withSuperadminContext(async (tx) => {
+    const userRes = await tx.query<{
+      id: string;
+      email: string;
+      full_name: string;
+      is_superadmin: boolean;
+      status: string;
+      session_version: number;
+    }>(
+      `SELECT id, email, full_name, is_superadmin, status, session_version
+       FROM users
+       WHERE id = $1 AND status = 'ACTIVE'
+       LIMIT 1`,
+      [payload.userId]
+    );
+
+    const user = userRes.rows[0];
+    if (!user) return null;
+    if (user.session_version !== payload.sessionVersion) return null;
+
+    if (user.is_superadmin) {
+      return {
+        id: user.id,
+        email: user.email,
+        fullName: user.full_name,
+        role: 'SUPERADMIN',
+        rawRole: 'SUPERADMIN',
+        status: user.status,
+        sessionVersion: user.session_version,
+      };
+    }
+
+    // Consultamos la pertenencia a un boliche en tenant_users
+    const tuRes = await tx.query<{
+      id: string;
+      role: string;
+      tenant_id: string;
+      slug: string;
+      fantasy_name: string;
+    }>(
+      `SELECT tu.id, tu.role, tu.tenant_id, t.slug, t.fantasy_name
+       FROM tenant_users tu
+       JOIN tenants t ON t.id = tu.tenant_id
+       WHERE tu.user_id = $1 AND tu.is_active = true
+       ORDER BY (t.slug = $2) DESC, tu.created_at ASC
+       LIMIT 1`,
+      [user.id, payload.tenantSlug || '']
+    );
+
+    const tu = tuRes.rows[0];
+    if (tu) {
+      let unifiedRole: UnifiedRole = 'ADMIN';
+      if (tu.role === 'OWNER') unifiedRole = 'DUEÑO';
+      else if (tu.role === 'ADMIN') unifiedRole = 'ADMIN';
+      else if (tu.role === 'MANAGER') unifiedRole = 'GERENTE';
+      else if (tu.role === 'BARTENDER') unifiedRole = 'CAJERO';
+
+      return {
+        id: user.id,
+        email: user.email,
+        fullName: user.full_name,
+        role: unifiedRole,
+        rawRole: tu.role,
+        tenantId: tu.tenant_id,
+        tenantSlug: tu.slug,
+        tenantFantasyName: tu.fantasy_name,
+        status: user.status,
+        sessionVersion: user.session_version,
+      };
+    }
+
+    return {
+      id: user.id,
+      email: user.email,
+      fullName: user.full_name,
+      role: 'CLIENTE',
+      rawRole: 'CUSTOMER',
+      status: user.status,
+      sessionVersion: user.session_version,
+    };
+  });
+}
+
+/**
+ * Autenticación unificada para TODOS los perfiles (Superadmin, Dueño, Gerente, Cajero, Cliente).
+ * Reconoce el rol exclusivamente desde la base de datos (servidor) y calcula la redirección.
+ */
+export async function loginUnified(params: {
+  email: string;
+  password: string;
+  clientIp?: string;
+  currentTenantSlug?: string;
+}): Promise<{
+  user: {
+    id: string;
+    email: string;
+    fullName: string;
+    role: UnifiedRole;
+    rawRole: string;
+    tenantSlug?: string | null;
+    tenantFantasyName?: string | null;
+  };
+  redirectUrl: string;
+  token: string;
+}> {
+  const cleanEmail = params.email.trim().toLowerCase();
+  const rateLimitKey = `${params.clientIp || 'unknown'}:${cleanEmail}`;
+
+  const rateCheck = checkAndRecordLoginAttempt(rateLimitKey, false);
+  if (!rateCheck.allowed) {
+    throw new Error(
+      `Demasiados intentos fallidos. Por favor esperá ${rateCheck.retryAfterSeconds ?? 900} segundos antes de volver a intentar.`
+    );
+  }
+
+  const user = await withSuperadminContext(async (tx) => {
+    const res = await tx.query<{
+      id: string;
+      email: string;
+      full_name: string;
+      password_hash: string | null;
+      is_superadmin: boolean;
+      status: string;
+      session_version: number;
+      created_at: string;
+    }>(
+      `SELECT id, email, full_name, password_hash, is_superadmin, status, session_version, created_at
+       FROM users
+       WHERE email = $1
+       LIMIT 1`,
+      [cleanEmail]
+    );
+    return res.rows[0] ?? null;
+  });
+
+  if (!user || !user.password_hash) {
+    const dummyHash =
+      '$2a$12$e8Yp0yZzV1/0m3YyH8o2t.Z6OqfE8WwRj1l2U4p3M7m5Y8s6d9o1y';
+    await bcrypt.compare(params.password, dummyHash).catch(() => false);
+    throw new Error('Credenciales inválidas. Comprobá tu correo y contraseña.');
+  }
+
+  const isPasswordValid = await verifyPassword(params.password, user.password_hash);
+  if (!isPasswordValid) {
+    throw new Error('Credenciales inválidas. Comprobá tu correo y contraseña.');
+  }
+
+  if (user.status !== 'ACTIVE') {
+    throw new Error('Tu cuenta se encuentra inactiva o suspendida.');
+  }
+
+  checkAndRecordLoginAttempt(rateLimitKey, true);
+
+  let unifiedRole: UnifiedRole = 'CLIENTE';
+  let rawRole = 'CUSTOMER';
+  let tenantId: string | null = null;
+  let tenantSlug: string | null = null;
+  let tenantFantasyName: string | null = null;
+  let redirectUrl = params.currentTenantSlug ? `/b/${params.currentTenantSlug}` : '/';
+
+  if (user.is_superadmin) {
+    unifiedRole = 'SUPERADMIN';
+    rawRole = 'SUPERADMIN';
+    redirectUrl = '/admin';
+  } else {
+    // Verificamos pertenencia a boliche
+    const staffInfo = await withSuperadminContext(async (tx) => {
+      const res = await tx.query<{
+        id: string;
+        role: string;
+        tenant_id: string;
+        slug: string;
+        fantasy_name: string;
+      }>(
+        `SELECT tu.id, tu.role, tu.tenant_id, t.slug, t.fantasy_name
+         FROM tenant_users tu
+         JOIN tenants t ON t.id = tu.tenant_id
+         WHERE tu.user_id = $1 AND tu.is_active = true
+         ORDER BY (t.slug = $2) DESC, tu.created_at ASC
+         LIMIT 1`,
+        [user.id, params.currentTenantSlug || '']
+      );
+      return res.rows[0] ?? null;
+    });
+
+    if (staffInfo) {
+      tenantId = staffInfo.tenant_id;
+      tenantSlug = staffInfo.slug;
+      tenantFantasyName = staffInfo.fantasy_name;
+      rawRole = staffInfo.role;
+
+      if (staffInfo.role === 'OWNER') {
+        unifiedRole = 'DUEÑO';
+        redirectUrl = `/b/${staffInfo.slug}/admin`;
+      } else if (staffInfo.role === 'ADMIN') {
+        unifiedRole = 'ADMIN';
+        redirectUrl = `/b/${staffInfo.slug}/admin`;
+      } else if (staffInfo.role === 'MANAGER') {
+        unifiedRole = 'GERENTE';
+        redirectUrl = `/b/${staffInfo.slug}/admin`;
+      } else if (staffInfo.role === 'BARTENDER') {
+        unifiedRole = 'CAJERO';
+        redirectUrl = `/b/${staffInfo.slug}/bar`;
+      } else {
+        unifiedRole = 'ADMIN';
+        redirectUrl = `/b/${staffInfo.slug}/admin`;
+      }
+    }
+  }
+
+  const token = createSignedUserSessionToken({
+    id: user.id,
+    email: user.email,
+    fullName: user.full_name,
+    role: unifiedRole,
+    tenantId,
+    tenantSlug,
+    tenantName: tenantFantasyName,
+    sessionVersion: user.session_version,
+  });
+
+  await withSuperadminContext(async (tx) => {
+    await tx.query(
+      `INSERT INTO audit_logs (
+         actor_user_id, actor_role, action, entity_type, entity_id, after_state
+       ) VALUES ($1::uuid, $2, 'USER_LOGIN_SUCCESS', 'user', $3, $4::jsonb)`,
+      [
+        user.id,
+        unifiedRole,
+        String(user.id),
+        JSON.stringify({
+          email: cleanEmail,
+          role: unifiedRole,
+          rawRole,
+          tenantSlug,
+          ip: params.clientIp || null,
+        }),
+      ]
+    );
+  });
+
+  return {
+    user: {
+      id: user.id,
+      email: user.email,
+      fullName: user.full_name,
+      role: unifiedRole,
+      rawRole,
+      tenantSlug,
+      tenantFantasyName,
+    },
+    redirectUrl,
     token,
   };
 }

@@ -6,7 +6,10 @@ export interface AdminSessionPayload {
   userId: string;
   email: string;
   fullName: string;
-  role: 'SUPERADMIN';
+  role: string;
+  tenantId?: string | null;
+  tenantSlug?: string | null;
+  tenantName?: string | null;
   sessionVersion: number;
   issuedAt: number;
   expiresAt: number;
@@ -112,6 +115,67 @@ export async function verifySignedAdminSessionTokenEdge(
     const payload = JSON.parse(jsonStr) as AdminSessionPayload;
 
     if (!payload || !payload.userId || payload.role !== 'SUPERADMIN') {
+      return null;
+    }
+
+    const nowSec = Math.floor(nowMs / 1000);
+    if (payload.expiresAt <= nowSec) {
+      return null;
+    }
+
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Validador Edge para cualquier usuario autenticado con sesión firmada.
+ */
+export async function verifySignedUserSessionTokenEdge(
+  token: string | null | undefined,
+  nowMs: number = Date.now()
+): Promise<AdminSessionPayload | null> {
+  if (!token || typeof token !== 'string' || !token.includes('.')) {
+    return null;
+  }
+
+  const parts = token.split('.');
+  if (parts.length !== 2) return null;
+
+  const [encoded, sigHex] = parts;
+  if (!encoded || !sigHex || !/^[0-9a-fA-F]{64}$/.test(sigHex)) {
+    return null;
+  }
+
+  try {
+    const encoder = new TextEncoder();
+    const secretKey = await crypto.subtle.importKey(
+      'raw',
+      encoder.encode(getSessionHmacSecret()),
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['verify']
+    );
+
+    const sigBytes = new Uint8Array(
+      sigHex.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16))
+    );
+
+    const isValid = await crypto.subtle.verify(
+      'HMAC',
+      secretKey,
+      sigBytes,
+      encoder.encode(encoded)
+    );
+
+    if (!isValid) return null;
+
+    const base64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonStr = atob(base64);
+    const payload = JSON.parse(jsonStr) as AdminSessionPayload;
+
+    if (!payload || !payload.userId || !payload.role) {
       return null;
     }
 

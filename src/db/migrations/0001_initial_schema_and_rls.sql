@@ -592,6 +592,20 @@ CREATE TABLE IF NOT EXISTS webhook_events (
     UNIQUE (provider, external_event_id, action, resource_id)
 );
 
+CREATE TABLE IF NOT EXISTS commercial_leads (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    full_name VARCHAR(160) NOT NULL,
+    venue_name VARCHAR(160) NOT NULL,
+    city VARCHAR(100) NOT NULL,
+    role_in_venue VARCHAR(80) NOT NULL,
+    phone VARCHAR(40) NOT NULL,
+    email VARCHAR(320) NOT NULL,
+    message TEXT NOT NULL DEFAULT '',
+    status VARCHAR(24) NOT NULL DEFAULT 'NEW',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_commercial_leads_created ON commercial_leads (created_at DESC);
+
 -- ============================================================================
 -- 7. POLÍTICAS ROW LEVEL SECURITY (RLS) ESTRICTAS Y FORZADAS
 -- ============================================================================

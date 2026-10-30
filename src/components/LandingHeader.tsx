@@ -4,20 +4,19 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   ArrowRight,
-  CheckCircle2,
   ChevronDown,
-  Clock,
   ExternalLink,
-  Lock,
   LogOut,
+  Menu,
   QrCode,
-  ShieldAlert,
   ShieldCheck,
   Sparkles,
+  Store,
   User,
   UserCheck,
   X,
 } from 'lucide-react';
+import { UnifiedAuthModal } from '@/components/auth/UnifiedAuthModal';
 import { LogoutModal } from '@/components/auth/LogoutModal';
 import { formatArsFromCents, formatDateTimeAr } from '@/lib/format';
 
@@ -36,13 +35,18 @@ interface CustomerOrder {
 
 interface SessionState {
   authenticated: boolean;
-  role: 'SUPERADMIN' | 'CUSTOMER' | 'ANONYMOUS';
+  role: 'SUPERADMIN' | 'ADMIN' | 'DUEÑO' | 'GERENTE' | 'CAJERO' | 'CLIENTE' | 'ANONYMOUS';
+  rawRole?: string;
   user: {
     id?: string;
     email?: string;
     fullName?: string;
     avatarUrl?: string | null;
+    role?: string;
+    tenantSlug?: string | null;
+    tenantFantasyName?: string | null;
   } | null;
+  redirectUrl?: string;
   orders?: CustomerOrder[];
 }
 
@@ -52,40 +56,89 @@ export function LandingHeader() {
     role: 'ANONYMOUS',
     user: null,
   });
+
+  const [scrolled, setScrolled] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isOrdersModalOpen, setIsOrdersModalOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 15);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const refreshSession = () => {
     fetch('/api/auth/session', { cache: 'no-store' })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data && data.authenticated) {
           setSession(data);
+        } else {
+          setSession({
+            authenticated: false,
+            role: 'ANONYMOUS',
+            user: null,
+          });
         }
       })
       .catch(() => undefined);
+  };
+
+  useEffect(() => {
+    refreshSession();
   }, []);
+
+  const getRoleBadge = (role: string) => {
+    switch (role) {
+      case 'SUPERADMIN':
+        return { label: 'Superadmin', color: 'bg-[#00F0FF]/15 text-[#00F0FF] border-[#00F0FF]/30' };
+      case 'DUEÑO':
+        return { label: 'Dueño', color: 'bg-[#FF2E63]/15 text-[#FF2E63] border-[#FF2E63]/30' };
+      case 'GERENTE':
+        return { label: 'Gerente', color: 'bg-purple-500/15 text-purple-300 border-purple-500/30' };
+      case 'CAJERO':
+        return { label: 'Cajero / Barra', color: 'bg-amber-500/15 text-amber-300 border-amber-500/30' };
+      case 'ADMIN':
+        return { label: 'Admin', color: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30' };
+      default:
+        return { label: 'Cliente', color: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' };
+    }
+  };
+
+  const badgeInfo = session.authenticated ? getRoleBadge(session.role) : null;
 
   return (
     <>
-      <header className="sticky top-0 z-40 px-4 pt-4 sm:px-6">
-        <div className="bo-glass-pill mx-auto flex max-w-7xl items-center justify-between rounded-2xl px-4 py-3 sm:px-6">
-          <a href="#" className="group flex items-center gap-3">
+      <header
+        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+          scrolled
+            ? 'bg-[#040407]/90 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.8)] backdrop-blur-xl border-b border-white/10'
+            : 'bg-[#040407]/60 py-4 backdrop-blur-md border-b border-white/5'
+        }`}
+      >
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6">
+          {/* Logo Principal BarraOnline */}
+          <Link href="/" className="group flex items-center gap-3">
             <img
               src="/logo-barraonline.png"
-              alt="BarraOnline — Pedí • Pagá • Retirá"
-              className="h-10 w-auto object-contain drop-shadow-[0_0_16px_rgba(0,229,255,0.35)] transition-transform duration-300 group-hover:scale-105 sm:h-11"
+              alt="BarraOnline — Plataforma Comercial para Boliches y Bares"
+              className="h-9 w-auto object-contain drop-shadow-[0_0_16px_rgba(0,229,255,0.35)] transition-transform duration-300 group-hover:scale-105 sm:h-10"
             />
-            <span className="hidden rounded-full border border-[#00F0FF]/30 bg-[#00F0FF]/10 px-2.5 py-0.5 text-[10px] font-extrabold tracking-widest text-[#00F0FF] uppercase lg:inline-block">
-              Costa Argentina
+            <span className="hidden rounded-full border border-[#00F0FF]/30 bg-[#00F0FF]/10 px-2.5 py-0.5 text-[10px] font-black tracking-widest text-[#00F0FF] uppercase lg:inline-block">
+              SaaS Boliches
             </span>
-          </a>
+          </Link>
 
+          {/* Navegación Principal Comercial (Desktop) */}
           <nav
             aria-label="Navegación principal"
-            className="hidden items-center gap-7 text-xs font-extrabold tracking-wider text-slate-300 uppercase md:flex"
+            className="hidden items-center gap-6 text-xs font-black tracking-wider text-slate-300 uppercase md:flex lg:gap-8"
           >
             <a
               href="#boliches"
@@ -100,132 +153,104 @@ export function LandingHeader() {
               Cómo funciona
             </a>
             <a
-              href="#ventajas"
+              href="#beneficios"
               className="transition-colors hover:text-white"
             >
-              La experiencia
+              Beneficios
             </a>
             <a
               href="#para-boliches"
               className="transition-colors hover:text-[#00F0FF]"
             >
-              Sumá tu boliche
+              Para tu boliche
+            </a>
+            <a
+              href="#contacto"
+              className="transition-colors hover:text-[#FF2E63]"
+            >
+              Contacto
             </a>
           </nav>
 
-          <div className="flex items-center gap-3">
-            {/* Estado autenticado: Superadministrador */}
-            {session.authenticated && session.role === 'SUPERADMIN' ? (
+          {/* Acciones y CTAs del Header */}
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            {/* CTA Principal Comercial: Prioridad Visual */}
+            <a
+              href="#contacto"
+              className="bo-btn-laser inline-flex items-center gap-2 rounded-xl bg-[#FF2E63] px-3.5 py-2 text-xs font-black tracking-wider text-white uppercase shadow-[0_0_24px_rgba(255,46,99,0.5)] transition-transform hover:scale-105 active:scale-95 sm:px-4 sm:py-2.5"
+            >
+              <span>Quiero BarraOnline</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </a>
+
+            {/* Acceso Unificado a Cuentas: Botón Discreto */}
+            {session.authenticated ? (
               <div className="relative">
                 <button
                   type="button"
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="inline-flex items-center gap-2 rounded-xl border border-[#00F0FF]/40 bg-[#00F0FF]/10 px-3.5 py-2 text-xs font-bold text-white transition-all hover:bg-[#00F0FF]/20"
-                >
-                  <ShieldCheck className="h-4 w-4 text-[#00F0FF]" />
-                  <span className="hidden sm:inline max-w-[120px] truncate">
-                    {session.user?.fullName || 'Superadmin'}
-                  </span>
-                  <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
-                </button>
-
-                {isUserMenuOpen && (
-                  <div
-                    className="absolute right-0 mt-2 w-56 rounded-2xl border border-white/15 bg-[#0C0F17]/95 p-2 shadow-[0_16px_40px_rgba(0,0,0,0.8)] backdrop-blur-xl animate-in fade-in zoom-in-95"
-                    onClick={() => setIsUserMenuOpen(false)}
-                  >
-                    <div className="px-3 py-2 border-b border-white/10">
-                      <p className="text-[11px] font-medium text-slate-400">Sesión activa</p>
-                      <p className="text-xs font-black text-[#00F0FF] truncate">
-                        {session.user?.email}
-                      </p>
-                      <span className="mt-1 inline-block text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-[#00F0FF]/15 text-[#00F0FF]">
-                        Superadministrador
-                      </span>
-                    </div>
-
-                    <Link
-                      href="/admin"
-                      className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-xs font-bold text-white hover:bg-white/10 transition-colors"
-                    >
-                      <ShieldCheck className="h-4 w-4 text-[#00F0FF]" />
-                      <span>Panel de control</span>
-                    </Link>
-
-                    <Link
-                      href="/admin/boliches"
-                      className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-xs font-bold text-white hover:bg-white/10 transition-colors"
-                    >
-                      <Sparkles className="h-4 w-4 text-[#FF2E63]" />
-                      <span>Gestión de boliches</span>
-                    </Link>
-
-                    <Link
-                      href="/admin/cuenta"
-                      className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-xs font-bold text-white hover:bg-white/10 transition-colors"
-                    >
-                      <User className="h-4 w-4 text-slate-300" />
-                      <span>Mi cuenta y seguridad</span>
-                    </Link>
-
-                    <button
-                      type="button"
-                      onClick={() => setIsLogoutModalOpen(true)}
-                      className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-xs font-bold text-rose-400 hover:bg-rose-500/10 transition-colors text-left"
-                    >
-                      <LogOut className="h-4 w-4 text-rose-400" />
-                      <span>Cerrar sesión</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : null}
-
-            {/* Estado autenticado: Cliente */}
-            {session.authenticated && session.role === 'CUSTOMER' ? (
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-3.5 py-2 text-xs font-bold text-white transition-all hover:bg-white/10"
+                  className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-xs font-bold text-white transition-all hover:bg-white/10 hover:border-white/30"
                 >
                   <UserCheck className="h-4 w-4 text-[#00F0FF]" />
-                  <span className="hidden sm:inline max-w-[120px] truncate">
-                    {session.user?.fullName || 'Mi cuenta'}
+                  <span className="hidden max-w-[110px] truncate sm:inline">
+                    {session.user?.fullName?.split(' ')[0] || 'Mi cuenta'}
                   </span>
                   <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
                 </button>
 
                 {isUserMenuOpen && (
                   <div
-                    className="absolute right-0 mt-2 w-56 rounded-2xl border border-white/15 bg-[#0C0F17]/95 p-2 shadow-[0_16px_40px_rgba(0,0,0,0.8)] backdrop-blur-xl animate-in fade-in zoom-in-95"
+                    className="absolute right-0 mt-2 w-64 rounded-2xl border border-white/15 bg-[#0C0F17]/95 p-2 shadow-[0_16px_40px_rgba(0,0,0,0.9)] backdrop-blur-xl animate-in fade-in zoom-in-95"
                     onClick={() => setIsUserMenuOpen(false)}
                   >
-                    <div className="px-3 py-2 border-b border-white/10">
-                      <p className="text-[11px] font-medium text-slate-400">Cliente</p>
-                      <p className="text-xs font-black text-white truncate">
+                    <div className="border-b border-white/10 px-3 py-2.5">
+                      <p className="text-[11px] font-medium text-slate-400">Sesión activa</p>
+                      <p className="truncate text-xs font-black text-white">
                         {session.user?.fullName}
                       </p>
-                      {session.user?.email && (
-                        <p className="text-[11px] text-slate-400 truncate">
-                          {session.user.email}
-                        </p>
+                      <p className="truncate text-[11px] text-slate-400">
+                        {session.user?.email}
+                      </p>
+                      {badgeInfo && (
+                        <span
+                          className={`mt-1.5 inline-block rounded-full border px-2 py-0.5 text-[10px] font-extrabold uppercase ${badgeInfo.color}`}
+                        >
+                          {badgeInfo.label}
+                        </span>
                       )}
                     </div>
 
+                    {/* Acceso directo a su panel autorizado según el rol identificado */}
+                    {session.redirectUrl && session.redirectUrl !== '/' && (
+                      <Link
+                        href={session.redirectUrl}
+                        className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-[#00F0FF] transition-colors hover:bg-white/10"
+                      >
+                        <ShieldCheck className="h-4 w-4 text-[#00F0FF]" />
+                        <span>
+                          {session.role === 'SUPERADMIN'
+                            ? 'Panel de control general'
+                            : session.role === 'CAJERO'
+                            ? 'Terminal de barra'
+                            : 'Panel de mi boliche'}
+                        </span>
+                      </Link>
+                    )}
+
+                    {/* Para clientes o usuarios con pedidos */}
                     <button
                       type="button"
                       onClick={() => setIsOrdersModalOpen(true)}
-                      className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-xs font-bold text-white hover:bg-white/10 transition-colors text-left"
+                      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-white/10 text-left"
                     >
-                      <QrCode className="h-4 w-4 text-[#00F0FF]" />
-                      <span>Mis pedidos y QR</span>
+                      <QrCode className="h-4 w-4 text-[#FF2E63]" />
+                      <span>Mis pedidos y códigos QR</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => setIsLogoutModalOpen(true)}
-                      className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-xs font-bold text-rose-400 hover:bg-rose-500/10 transition-colors text-left"
+                      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-rose-400 transition-colors hover:bg-rose-500/10 text-left"
                     >
                       <LogOut className="h-4 w-4 text-rose-400" />
                       <span>Cerrar sesión</span>
@@ -233,152 +258,112 @@ export function LandingHeader() {
                   </div>
                 )}
               </div>
-            ) : null}
-
-            {/* Estado no autenticado: Botón Iniciar sesión */}
-            {!session.authenticated && (
+            ) : (
               <button
                 type="button"
                 onClick={() => setIsAuthModalOpen(true)}
-                className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-4 py-2.5 text-xs font-black tracking-wider text-slate-200 uppercase transition-all hover:border-[#00F0FF]/50 hover:bg-[#00F0FF]/10 hover:text-white"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-xs font-extrabold text-slate-300 transition-all hover:border-[#00F0FF]/50 hover:bg-[#00F0FF]/10 hover:text-white active:scale-95 sm:px-3.5 sm:py-2.5"
               >
                 <User className="h-3.5 w-3.5 text-[#00F0FF]" />
-                <span>Iniciar sesión</span>
+                <span className="hidden sm:inline">Mi cuenta</span>
               </button>
             )}
 
-            <a
-              href="#boliches"
-              className="bo-btn-laser inline-flex items-center gap-2 rounded-xl bg-[#FF2E63] px-4 py-2.5 text-xs font-black tracking-wider text-white uppercase shadow-[0_0_24px_rgba(255,46,99,0.5)]"
-            >
-              <span>Hacer mi pedido</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </a>
-          </div>
-        </div>
-      </header>
-
-      {/* Modal de Acceso Unificado (Clientes + Acceso Administrativo discreto) */}
-      {isAuthModalOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="auth-modal-title"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setIsAuthModalOpen(false);
-          }}
-        >
-          <div className="relative w-full max-w-md overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-b from-[#141624] to-[#0A0B12] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.9)] sm:p-8 animate-in zoom-in-95 duration-200">
-            {/* Glows decorativos */}
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute -top-16 -right-16 h-48 w-48 rounded-full bg-[#00F0FF]/15 blur-3xl"
-            />
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-[#FF2E63]/15 blur-3xl"
-            />
-
-            {/* Botón cerrar */}
+            {/* Toggle Menú Móvil */}
             <button
               type="button"
-              onClick={() => setIsAuthModalOpen(false)}
-              aria-label="Cerrar ventana"
-              className="absolute top-5 right-5 flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-400 transition-colors hover:border-white/20 hover:text-white"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label={isMobileMenuOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'}
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 bg-white/5 text-slate-300 md:hidden hover:text-white"
             >
-              <X className="h-4 w-4" />
+              {isMobileMenuOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
             </button>
-
-            <div className="mb-6 space-y-1.5">
-              <span className="inline-block text-[11px] font-black tracking-widest uppercase text-[#00F0FF]">
-                Acceso BarraOnline
-              </span>
-              <h2
-                id="auth-modal-title"
-                className="text-2xl font-black tracking-tight text-white"
-              >
-                Iniciar sesión
-              </h2>
-              <p className="text-xs text-slate-400">
-                Elegí cómo querés ingresar a la plataforma.
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              {/* Opción Principal: Acceso Clientes con Google */}
-              <div className="rounded-2xl border border-white/15 bg-white/[0.04] p-5 transition-all hover:border-[#00F0FF]/40 hover:bg-white/[0.07]">
-                <div className="flex items-start justify-between gap-3 mb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#00F0FF]/30 bg-[#00F0FF]/10 text-[#00F0FF]">
-                      <UserCheck className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-black text-white">Acceso de Clientes</h3>
-                      <p className="text-[11px] text-slate-400">
-                        Consultá tu perfil, pedidos y recuperá tus QR
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <a
-                  href="/api/auth/google/start?slug=landing"
-                  className="flex w-full items-center justify-center gap-3 rounded-xl border border-white/20 bg-white px-4 py-3 text-xs font-black text-slate-900 transition-all hover:bg-slate-100 shadow-[0_4px_20px_rgba(255,255,255,0.15)]"
-                >
-                  <svg className="h-4 w-4" viewBox="0 0 24 24">
-                    <path
-                      fill="#4285F4"
-                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                    />
-                    <path
-                      fill="#34A853"
-                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                    />
-                    <path
-                      fill="#FBBC05"
-                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-                    />
-                    <path
-                      fill="#EA4335"
-                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-                    />
-                  </svg>
-                  <span>Continuar con Google</span>
-                </a>
-              </div>
-
-              {/* Opción Secundaria y Discreta: Acceso Administrativo */}
-              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 transition-all hover:border-white/20 hover:bg-white/[0.04]">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-slate-400">
-                      <Lock className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <h4 className="text-xs font-bold text-slate-200">Acceso Administrativo</h4>
-                      <p className="text-[10px] text-slate-400">
-                        Superadministrador y gestión de plataforma
-                      </p>
-                    </div>
-                  </div>
-
-                  <Link
-                    href="/admin/login"
-                    onClick={() => setIsAuthModalOpen(false)}
-                    className="inline-flex items-center gap-1 rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-[11px] font-bold text-slate-300 hover:border-white/30 hover:text-white transition-all"
-                  >
-                    <span>Ingresar</span>
-                    <ArrowRight className="h-3 w-3" />
-                  </Link>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
-      )}
 
-      {/* Modal de Pedidos del Cliente ("Mis Pedidos y QRs") */}
+        {/* Desplegable Menú Móvil */}
+        {isMobileMenuOpen && (
+          <div className="border-t border-white/10 bg-[#07080E]/95 px-4 pt-4 pb-6 backdrop-blur-2xl md:hidden animate-in slide-in-from-top-4 duration-200">
+            <nav className="flex flex-col space-y-3 text-sm font-black tracking-wider text-slate-200 uppercase">
+              <a
+                href="#boliches"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="rounded-xl px-3 py-2 hover:bg-white/5"
+              >
+                Boliches adheridos
+              </a>
+              <a
+                href="#como-funciona"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="rounded-xl px-3 py-2 hover:bg-white/5"
+              >
+                Cómo funciona
+              </a>
+              <a
+                href="#beneficios"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="rounded-xl px-3 py-2 hover:bg-white/5"
+              >
+                Beneficios
+              </a>
+              <a
+                href="#para-boliches"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="rounded-xl px-3 py-2 hover:bg-white/5"
+              >
+                Para tu boliche
+              </a>
+              <a
+                href="#contacto"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="rounded-xl px-3 py-2 hover:bg-white/5"
+              >
+                Contacto comercial
+              </a>
+            </nav>
+
+            <div className="mt-5 border-t border-white/10 pt-4 flex flex-col gap-2.5">
+              <a
+                href="#contacto"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center justify-center gap-2 rounded-xl bg-[#FF2E63] py-3 text-xs font-black uppercase text-white shadow-[0_0_20px_rgba(255,46,99,0.5)]"
+              >
+                <span>Quiero BarraOnline</span>
+                <ArrowRight className="h-4 w-4" />
+              </a>
+
+              {!session.authenticated && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    setIsAuthModalOpen(true);
+                  }}
+                  className="flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 py-2.5 text-xs font-black uppercase text-slate-300 hover:text-white"
+                >
+                  <User className="h-4 w-4 text-[#00F0FF]" />
+                  <span>Ingresar a mi cuenta</span>
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+      </header>
+
+      {/* Modal de Acceso Unificado */}
+      <UnifiedAuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onSuccess={(user) => {
+          refreshSession();
+        }}
+      />
+
+      {/* Modal de Mis Pedidos y Códigos QR */}
       {isOrdersModalOpen && (
         <div
           role="dialog"
