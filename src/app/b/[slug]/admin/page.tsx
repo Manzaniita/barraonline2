@@ -212,12 +212,6 @@ export default function TenantOwnerAdminPage() {
             >
               Abrir Consola Barra
             </Link>
-            <Link
-              href="/superadmin"
-              className="rounded-xl border border-[#00F0FF]/40 bg-[#00F0FF]/10 px-3.5 py-2 text-xs font-bold text-[#00F0FF]"
-            >
-              Panel Superadmin
-            </Link>
           </div>
         </div>
       </header>
@@ -246,8 +240,7 @@ export default function TenantOwnerAdminPage() {
             </div>
             <p className="text-xs text-slate-400">
               <Lock className="mr-1 inline h-3.5 w-3.5 text-[#00F0FF]" />
-              Tokens OAuth cifrados en bóveda <strong>AES-256-GCM</strong> aislada por
-              tenant. El 100% de las ventas acredita directo en esta cuenta sin Split.
+              Conexión directa protegida. El 100% de las ventas acredita de forma inmediata en la cuenta del establecimiento.
             </p>
             <a
               href={oauthUrl}
@@ -255,7 +248,7 @@ export default function TenantOwnerAdminPage() {
               rel="noreferrer"
               className="inline-flex items-center gap-1.5 text-xs font-bold text-[#009EE3] hover:underline"
             >
-              Re-vincular OAuth 2.0 + PKCE (S256)
+              Re-vincular cuenta de Mercado Pago
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
           </div>
@@ -292,7 +285,7 @@ export default function TenantOwnerAdminPage() {
           <div className="flex items-center justify-between">
             <h2 className="text-base font-black text-white uppercase flex items-center gap-2">
               <Package className="h-5 w-5 text-[#FF2E63]" />
-              Catálogo e Inventario con Consistencia Transaccional PostgreSQL
+              Catálogo e Inventario en Tiempo Real
             </h2>
             <button
               type="button"
@@ -509,7 +502,7 @@ export default function TenantOwnerAdminPage() {
 
           <div className="rounded-3xl border border-white/10 bg-[#11131A] p-6 space-y-4">
             <h3 className="text-sm font-black text-white uppercase">
-              Libro Mayor de Comisiones (commission_ledger)
+              Registro Contable de Comisiones
             </h3>
             <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
               {ledger.map((l) => (

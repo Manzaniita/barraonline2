@@ -135,6 +135,7 @@ function BarConsoleInner() {
       setStaffList(bData.staff || []);
       setStations(bData.stations || []);
       setRecentLogs(bData.recentLogs || []);
+      setRecentOrders(bData.recentOrders || []);
       if (!selectedStaffId && bData.staff?.[0]?.id) {
         setSelectedStaffId(bData.staff[0].id);
       }
@@ -145,7 +146,6 @@ function BarConsoleInner() {
 
     if (catRes.ok) {
       const cData = await catRes.json();
-      setRecentOrders(cData.recentOrders || []);
       const inStockProds = (cData.products || []).filter(
         (p: { available_stock: number }) => p.available_stock > 0
       );
@@ -339,7 +339,7 @@ function BarConsoleInner() {
                 <h1 className="text-lg font-black text-white">{tenantName}</h1>
               </div>
               <p className="text-xs text-slate-400">
-                Modo Oscuro de Alto Contraste • Validación y Quemado Atómico en PostgreSQL
+                Consola Operativa de Barra • Validación y Entrega de Pedidos
               </p>
             </div>
           </div>
@@ -579,8 +579,8 @@ function BarConsoleInner() {
                 >
                   <Zap className="h-6 w-6" />
                   {busy
-                    ? 'Quemando QR en PostgreSQL...'
-                    : 'ENTREGAR BEBIDAS Y QUEMAR QR ATÓMICAMENTE'}
+                    ? 'Confirmando entrega...'
+                    : 'ENTREGAR BEBIDAS Y CONFIRMAR RETIRO'}
                 </button>
               </div>
             ) : inspectData.lookupOutcome === 'ALREADY_REDEEMED' ? (
@@ -723,7 +723,7 @@ function BarConsoleInner() {
         {/* Registro de Auditoría de Escaneos en Tiempo Real (qr_redemption_logs) */}
         <section className="rounded-3xl border border-white/10 bg-[#10131C] p-5 space-y-3">
           <h3 className="text-xs font-black tracking-wider text-slate-400 uppercase">
-            Auditoría Inmutable de Intentos de Escaneo en Barra (qr_redemption_logs)
+            Registro de Intentos y Entregas en Barra
           </h3>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">

@@ -901,3 +901,249 @@ export async function resolveTenantIdByMercadoPagoUserId(
     return res.rows[0]?.tenant_id ?? null;
   });
 }
+
+export interface RejectPaymentResult {
+  orderId: string;
+  orderNumber: string;
+  paymentStatus: 'REJECTED';
+  fulfillmentStatus: 'CANCELLED_UNPAID';
+  qrIssued: false;
+  stockReleased: boolean;
+  wasIdempotentDuplicate: boolean;
+}
+
+/**
+ * Registra de forma transaccional e idempotente el rechazo de un pago por Mercado Pago:
+ * - Libera la reserva temporal de stock (`RELEASED_REJECTED`) devolviendo las unidades al inventario disponible.
+ * - Marca el pedido en `REJECTED` / `CANCELLED_UNPAID`.
+ * - Jamás emite un código QR de retiro.
+ */
+export async function recordOrderPaymentRejected(params: {
+  tenantId: string;
+  orderId: string;
+  mpPaymentId?: number;
+  statusDetail?: string;
+  now?: Date;
+}): Promise<RejectPaymentResult> {
+  const {
+    tenantId,
+    orderId,
+    mpPaymentId = Math.floor(2000000000 + Math.random() * 7000000000),
+    statusDetail = 'cc_rejected_other_reason',
+    now = new Date(),
+  } = params;
+
+  return withTenantContext(tenantId, async (tx) => {
+    const orderRes = await tx.query<{
+      id: string;
+      order_number: string;
+      payment_status: string;
+      fulfillment_status: string;
+      total_cents: string;
+    }>(
+      `SELECT id, order_number, payment_status, fulfillment_status, total_cents
+       FROM orders
+       WHERE id = $1
+       FOR UPDATE`,
+      [orderId]
+    );
+
+    const order = orderRes.rows[0];
+    if (!order) {
+      throw new Error('ORDER_NOT_FOUND: No existe el pedido indicado.');
+    }
+
+    if (order.payment_status === 'APPROVED') {
+      throw new Error('ORDER_ALREADY_APPROVED: El pedido ya cuenta con un pago aprobado.');
+    }
+
+    if (order.payment_status === 'REJECTED') {
+      return {
+        orderId: order.id,
+        orderNumber: order.order_number,
+        paymentStatus: 'REJECTED',
+        fulfillmentStatus: 'CANCELLED_UNPAID',
+        qrIssued: false,
+        stockReleased: false,
+        wasIdempotentDuplicate: true,
+      };
+    }
+
+    const resQuery = await tx.query<{ id: string; status: string }>(
+      `SELECT id, status
+       FROM stock_reservations
+       WHERE order_id = $1
+       FOR UPDATE`,
+      [order.id]
+    );
+    const reservation = resQuery.rows[0];
+    let stockReleased = false;
+
+    if (reservation && reservation.status === 'ACTIVE') {
+      const itemsRes = await tx.query<{ product_id: string; quantity: number }>(
+        `SELECT product_id, quantity
+         FROM order_items
+         WHERE order_id = $1
+         ORDER BY product_id ASC`,
+        [order.id]
+      );
+
+      for (const item of itemsRes.rows) {
+        await tx.query(
+          `UPDATE products
+           SET stock_reserved = GREATEST(0, stock_reserved - $2),
+               version = version + 1,
+               updated_at = $3
+           WHERE id = $1`,
+          [item.product_id, Number(item.quantity), now.toISOString()]
+        );
+      }
+
+      await tx.query(
+        `UPDATE stock_reservations
+         SET status = 'RELEASED_REJECTED',
+             resolved_at = $2
+         WHERE id = $1`,
+        [reservation.id, now.toISOString()]
+      );
+      stockReleased = true;
+    }
+
+    await tx.query(
+      `INSERT INTO payment_transactions (
+         tenant_id, order_id, mp_payment_id,
+         status, status_detail, payment_type_id,
+         gross_amount_cents, idempotency_key, updated_at
+       ) VALUES (
+         $1, $2, $3,
+         'rejected', $4, 'credit_card',
+         $5, $6, $7
+       )
+       ON CONFLICT (mp_payment_id) DO UPDATE SET
+         status = 'rejected',
+         status_detail = EXCLUDED.status_detail,
+         updated_at = EXCLUDED.updated_at`,
+      [
+        tenantId,
+        order.id,
+        mpPaymentId,
+        statusDetail,
+        Number(order.total_cents),
+        `pay-rej:${mpPaymentId}`,
+        now.toISOString(),
+      ]
+    );
+
+    await tx.query(
+      `UPDATE orders
+       SET payment_status = 'REJECTED',
+           fulfillment_status = 'CANCELLED_UNPAID',
+           updated_at = $2
+       WHERE id = $1`,
+      [order.id, now.toISOString()]
+    );
+
+    return {
+      orderId: order.id,
+      orderNumber: order.order_number,
+      paymentStatus: 'REJECTED',
+      fulfillmentStatus: 'CANCELLED_UNPAID',
+      qrIssued: false,
+      stockReleased,
+      wasIdempotentDuplicate: false,
+    };
+  });
+}
+
+export interface PendingPaymentResult {
+  orderId: string;
+  orderNumber: string;
+  paymentStatus: 'IN_REVIEW';
+  fulfillmentStatus: 'AWAITING_PAYMENT';
+  qrIssued: false;
+}
+
+/**
+ * Registra un estado de pago pendiente de confirmación (`IN_REVIEW`) sin emitir QR de retiro.
+ */
+export async function recordOrderPaymentPending(params: {
+  tenantId: string;
+  orderId: string;
+  mpPaymentId?: number;
+  statusDetail?: string;
+  now?: Date;
+}): Promise<PendingPaymentResult> {
+  const {
+    tenantId,
+    orderId,
+    mpPaymentId = Math.floor(3000000000 + Math.random() * 6000000000),
+    statusDetail = 'pending_review_manual',
+    now = new Date(),
+  } = params;
+
+  return withTenantContext(tenantId, async (tx) => {
+    const orderRes = await tx.query<{
+      id: string;
+      order_number: string;
+      payment_status: string;
+      total_cents: string;
+    }>(
+      `SELECT id, order_number, payment_status, total_cents
+       FROM orders
+       WHERE id = $1
+       FOR UPDATE`,
+      [orderId]
+    );
+
+    const order = orderRes.rows[0];
+    if (!order) {
+      throw new Error('ORDER_NOT_FOUND: No existe el pedido indicado.');
+    }
+
+    if (order.payment_status === 'APPROVED') {
+      throw new Error('ORDER_ALREADY_APPROVED: El pedido ya fue aprobado.');
+    }
+
+    await tx.query(
+      `INSERT INTO payment_transactions (
+         tenant_id, order_id, mp_payment_id,
+         status, status_detail, payment_type_id,
+         gross_amount_cents, idempotency_key, updated_at
+       ) VALUES (
+         $1, $2, $3,
+         'in_process', $4, 'account_money',
+         $5, $6, $7
+       )
+       ON CONFLICT (mp_payment_id) DO UPDATE SET
+         status = 'in_process',
+         status_detail = EXCLUDED.status_detail,
+         updated_at = EXCLUDED.updated_at`,
+      [
+        tenantId,
+        order.id,
+        mpPaymentId,
+        statusDetail,
+        Number(order.total_cents),
+        `pay-pend:${mpPaymentId}`,
+        now.toISOString(),
+      ]
+    );
+
+    await tx.query(
+      `UPDATE orders
+       SET payment_status = 'IN_REVIEW',
+           fulfillment_status = 'AWAITING_PAYMENT',
+           updated_at = $2
+       WHERE id = $1`,
+      [order.id, now.toISOString()]
+    );
+
+    return {
+      orderId: order.id,
+      orderNumber: order.order_number,
+      paymentStatus: 'IN_REVIEW',
+      fulfillmentStatus: 'AWAITING_PAYMENT',
+      qrIssued: false,
+    };
+  });
+}

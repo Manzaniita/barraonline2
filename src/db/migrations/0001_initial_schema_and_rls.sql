@@ -250,6 +250,30 @@ CREATE TABLE IF NOT EXISTS order_items (
 CREATE INDEX IF NOT EXISTS idx_order_items_order ON order_items (tenant_id, order_id);
 
 DO $$ BEGIN
+    CREATE TYPE draft_status AS ENUM ('SAVED', 'CONVERTED', 'EXPIRED', 'DISCARDED');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+CREATE TABLE IF NOT EXISTS order_drafts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+    customer_user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    guest_session_hash VARCHAR(64),
+    draft_token_hash VARCHAR(64) NOT NULL UNIQUE,
+    status draft_status NOT NULL DEFAULT 'SAVED',
+    saved_step SMALLINT NOT NULL DEFAULT 1 CHECK (saved_step BETWEEN 1 AND 3),
+    customer_display_name VARCHAR(120),
+    items_snapshot JSONB NOT NULL DEFAULT '[]'::jsonb,
+    subtotal_snapshot_cents BIGINT NOT NULL DEFAULT 0 CHECK (subtotal_snapshot_cents >= 0),
+    converted_order_id UUID,
+    expires_at TIMESTAMPTZ NOT NULL DEFAULT (now() + interval '24 hours'),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (tenant_id, id)
+);
+CREATE INDEX IF NOT EXISTS idx_order_drafts_tenant_user ON order_drafts (tenant_id, customer_user_id) WHERE status = 'SAVED';
+CREATE INDEX IF NOT EXISTS idx_order_drafts_tenant_session ON order_drafts (tenant_id, guest_session_hash) WHERE status = 'SAVED';
+
+DO $$ BEGIN
     CREATE TYPE reservation_status AS ENUM ('ACTIVE', 'COMMITTED', 'RELEASED_EXPIRED', 'RELEASED_REJECTED', 'LATE_CONFLICT');
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
@@ -558,7 +582,7 @@ DECLARE
     tbl TEXT;
     tenant_tables TEXT[] := ARRAY[
         'tenant_users', 'bar_stations', 'tenant_mp_credentials',
-        'categories', 'products', 'orders', 'order_items',
+        'categories', 'products', 'orders', 'order_items', 'order_drafts',
         'stock_reservations', 'payment_transactions', 'refunds',
         'order_qrs', 'qr_redemption_logs', 'tenant_plans',
         'tenant_commission_rules', 'settlements', 'commission_ledger',

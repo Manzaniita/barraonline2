@@ -3,6 +3,8 @@ import { withSuperadminContext } from '@/db';
 import { ensureDemoDataSeeded } from '@/db/seed';
 import {
   confirmOrderPaymentAndIssueQr,
+  recordOrderPaymentPending,
+  recordOrderPaymentRejected,
   resolveTenantIdByMercadoPagoUserId,
 } from '@/modules/payments/mercadopago-service';
 import { verifyMercadoPagoWebhookSignature } from '@/modules/security/crypto-vault';
@@ -24,6 +26,7 @@ export async function POST(request: NextRequest) {
     data?: { id?: string | number };
     order_id?: string;
     gross_amount_cents?: number;
+    payment_status?: 'approved' | 'rejected' | 'pending' | 'in_process';
   } | null;
 
   const resourceId = String(dataIdParam ?? body?.data?.id ?? '');
@@ -101,29 +104,44 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ status: 'IGNORED_DUPLICATE' }, { status: 200 });
   }
 
-  if (
-    tenantId &&
-    topic === 'payment' &&
-    body?.order_id &&
-    typeof body?.gross_amount_cents === 'number'
-  ) {
-    const result = await confirmOrderPaymentAndIssueQr({
-      tenantId,
-      orderId: body.order_id,
-      mpPaymentId: Number(resourceId),
-      grossAmountCents: body.gross_amount_cents,
-    });
+  if (tenantId && topic === 'payment' && body?.order_id) {
+    let result: unknown;
+    if (body.payment_status === 'rejected') {
+      result = await recordOrderPaymentRejected({
+        tenantId,
+        orderId: body.order_id,
+        mpPaymentId: Number(resourceId),
+      });
+    } else if (
+      body.payment_status === 'pending' ||
+      body.payment_status === 'in_process'
+    ) {
+      result = await recordOrderPaymentPending({
+        tenantId,
+        orderId: body.order_id,
+        mpPaymentId: Number(resourceId),
+      });
+    } else if (typeof body?.gross_amount_cents === 'number') {
+      result = await confirmOrderPaymentAndIssueQr({
+        tenantId,
+        orderId: body.order_id,
+        mpPaymentId: Number(resourceId),
+        grossAmountCents: body.gross_amount_cents,
+      });
+    }
 
-    await withSuperadminContext(async (tx) => {
-      await tx.query(
-        `UPDATE webhook_events
-         SET processing_status = 'PROCESSED', processed_at = now()
-         WHERE provider = 'MERCADOPAGO' AND external_event_id = $1 AND action = $2 AND resource_id = $3`,
-        [externalEventId, action, resourceId]
-      );
-    });
+    if (result) {
+      await withSuperadminContext(async (tx) => {
+        await tx.query(
+          `UPDATE webhook_events
+           SET processing_status = 'PROCESSED', processed_at = now()
+           WHERE provider = 'MERCADOPAGO' AND external_event_id = $1 AND action = $2 AND resource_id = $3`,
+          [externalEventId, action, resourceId]
+        );
+      });
 
-    return NextResponse.json({ status: 'PROCESSED', result }, { status: 200 });
+      return NextResponse.json({ status: 'PROCESSED', result }, { status: 200 });
+    }
   }
 
   return NextResponse.json({ status: 'RECEIVED' }, { status: 200 });
