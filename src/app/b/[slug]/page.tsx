@@ -982,7 +982,7 @@ function BarraOnlineExpressContent() {
           '--bo-accent-on-primary': accentText,
         } as React.CSSProperties
       }
-      className="relative min-h-screen bg-[#040407] pb-36 text-slate-100 lg:pb-16"
+      className="relative min-h-screen w-full max-w-full overflow-x-hidden bg-[#040407] pb-36 text-slate-100 lg:pb-16"
     >
       {/* Iluminación Ambiental Nocturna del Establecimiento */}
       <div
@@ -1003,8 +1003,8 @@ function BarraOnlineExpressContent() {
       {/* ======================================================================
           HEADER COMPACTO + INDICADOR VISUAL DE PROGRESO DE 4 PASOS
           ====================================================================== */}
-      <header className="sticky top-0 z-30 border-b border-white/10 bg-[#05060C]/90 backdrop-blur-2xl">
-        <div className="mx-auto max-w-5xl px-4 pt-3 pb-2.5">
+      <header className="sticky top-0 z-30 w-full border-b border-white/10 bg-[#05060C]/90 backdrop-blur-2xl">
+        <div className="mx-auto w-full max-w-5xl px-3 sm:px-4 pt-2.5 sm:pt-3 pb-2 sm:pb-2.5">
           {/* Fila Superior: Identidad del Boliche + Acceso Rápido a QRs / Cuenta */}
           <div className="flex items-center justify-between gap-2">
             <div className="flex min-w-0 items-center gap-2.5">
@@ -1017,7 +1017,7 @@ function BarraOnlineExpressContent() {
                     )
                   }
                   aria-label="Volver al paso anterior"
-                  className="bo-gpu-transition flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-white/5 text-white hover:border-white/30"
+                  className="bo-gpu-transition flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-white/5 text-white hover:border-white/30"
                 >
                   <ArrowLeft className="h-4 w-4" />
                 </button>
@@ -1026,7 +1026,7 @@ function BarraOnlineExpressContent() {
                   type="button"
                   onClick={() => handleBackToStep(1)}
                   aria-label={`Inicio de ${tenant.fantasy_name}`}
-                  className="bo-gpu-transition flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-white/5 text-slate-300 hover:border-white/30 hover:text-white"
+                  className="bo-gpu-transition flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-white/5 text-slate-300 hover:border-white/30 hover:text-white"
                 >
                   <GlassWater className="h-4 w-4" style={{ color: accent }} />
                 </button>
@@ -1034,7 +1034,7 @@ function BarraOnlineExpressContent() {
 
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <h1 className="truncate text-base font-black tracking-tight text-white sm:text-lg">
+                  <h1 className="truncate text-sm sm:text-base font-black tracking-tight text-white">
                     {tenant.fantasy_name}
                   </h1>
                   <span
@@ -1048,23 +1048,23 @@ function BarraOnlineExpressContent() {
                     EXPRESS
                   </span>
                 </div>
-                <p className="truncate text-[11px] font-medium text-slate-400">
+                <p className="truncate text-[10px] sm:text-[11px] font-medium text-slate-400">
                   {tenant.city} • Retiro rápido en barra con QR
                 </p>
               </div>
             </div>
 
-            <div className="flex shrink-0 items-center gap-2">
+            <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
               {customer && (
-                <div className="flex items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.04] pl-3 pr-1.5 py-1 text-xs font-bold text-slate-200">
+                <div className="flex items-center gap-1 sm:gap-1.5 rounded-full border border-white/12 bg-white/[0.04] pl-2.5 sm:pl-3 pr-1 sm:pr-1.5 py-1 text-[11px] sm:text-xs font-bold text-slate-200">
                   <UserCheck className="h-3.5 w-3.5" style={{ color: accentSecondary }} />
-                  <span className="max-w-[7rem] truncate">{customer.fullName}</span>
+                  <span className="max-w-[4.5rem] sm:max-w-[7rem] truncate">{customer.fullName}</span>
                   <button
                     type="button"
                     onClick={() => setShowLogoutModal(true)}
                     title="Cerrar sesión en este boliche"
                     aria-label="Cerrar sesión en este boliche"
-                    className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-white/10 text-slate-400 hover:text-rose-400 transition-colors ml-1"
+                    className="flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-full hover:bg-white/10 text-slate-400 hover:text-rose-400 transition-colors ml-0.5"
                   >
                     <LogOut className="h-3 w-3" />
                   </button>
@@ -1075,7 +1075,7 @@ function BarraOnlineExpressContent() {
                 <button
                   type="button"
                   onClick={() => setShowMyOrdersDrawer(true)}
-                  className="bo-gpu-transition inline-flex items-center gap-1.5 rounded-xl border border-[#00F0FF]/40 bg-[#00F0FF]/12 px-3 py-2 text-xs font-black text-[#00F0FF] uppercase hover:bg-[#00F0FF]/20"
+                  className="bo-gpu-transition inline-flex items-center gap-1 sm:gap-1.5 rounded-xl border border-[#00F0FF]/40 bg-[#00F0FF]/12 px-2.5 sm:px-3 py-1.5 sm:py-2 text-[11px] sm:text-xs font-black text-[#00F0FF] uppercase hover:bg-[#00F0FF]/20"
                 >
                   <QrCode className="h-3.5 w-3.5" />
                   <span>
@@ -1091,7 +1091,7 @@ function BarraOnlineExpressContent() {
           {/* Indicador de Progreso Nocturno de 4 Pasos */}
           <nav
             aria-label="Progreso de tu pedido"
-            className="mt-3 grid grid-cols-4 gap-1.5 sm:gap-2"
+            className="mt-2.5 sm:mt-3 grid grid-cols-4 gap-1 sm:gap-2 w-full min-w-0"
           >
             {EXPRESS_STEPS.map((item) => {
               const isCompleted = currentStep > item.step;
@@ -1107,7 +1107,7 @@ function BarraOnlineExpressContent() {
                   type="button"
                   disabled={!canJumpBack}
                   onClick={() => canJumpBack && handleBackToStep(item.step)}
-                  className={`group relative flex flex-col gap-1.5 rounded-xl px-2.5 py-2 text-left transition-all duration-300 ${
+                  className={`group relative flex min-w-0 flex-col gap-1 rounded-xl px-1.5 py-1.5 sm:gap-1.5 sm:px-2.5 sm:py-2 text-left transition-all duration-300 ${
                     isCurrent
                       ? 'border border-white/20 bg-white/[0.07] shadow-[0_8px_20px_rgba(0,0,0,0.45)]'
                       : isCompleted
@@ -1115,7 +1115,7 @@ function BarraOnlineExpressContent() {
                         : 'border border-white/5 bg-white/[0.02] opacity-55'
                   } ${canJumpBack ? 'cursor-pointer' : 'cursor-default'}`}
                 >
-                  <div className="flex items-center justify-between gap-1">
+                  <div className="flex w-full min-w-0 items-center justify-between gap-0.5 sm:gap-1">
                     <span
                       style={
                         isCurrent
@@ -1124,24 +1124,24 @@ function BarraOnlineExpressContent() {
                             ? { color: '#34D399' }
                             : undefined
                       }
-                      className="font-mono text-[10px] font-black tracking-wider uppercase text-slate-400"
+                      className="truncate font-mono text-[9px] sm:text-[10px] font-black tracking-wider uppercase text-slate-400"
                     >
-                      Paso {item.step}
+                      P{item.step}
                     </span>
                     {isCompleted ? (
-                      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-emerald-400 text-[#070709]">
-                        <Check className="h-2.5 w-2.5 stroke-[3]" />
+                      <span className="flex h-3 w-3 sm:h-4 sm:w-4 shrink-0 items-center justify-center rounded-full bg-emerald-400 text-[#070709]">
+                        <Check className="h-2 w-2 sm:h-2.5 sm:w-2.5 stroke-[3]" />
                       </span>
                     ) : isCurrent ? (
                       <span
                         style={{ backgroundColor: accent }}
-                        className="h-2 w-2 animate-pulse rounded-full"
+                        className="h-1.5 w-1.5 sm:h-2 sm:w-2 shrink-0 animate-pulse rounded-full"
                       />
                     ) : null}
                   </div>
 
                   <span
-                    className={`truncate text-xs font-extrabold ${
+                    className={`truncate text-[10px] sm:text-xs font-extrabold ${
                       isCurrent
                         ? 'text-white'
                         : isCompleted
@@ -1172,7 +1172,7 @@ function BarraOnlineExpressContent() {
       {/* ======================================================================
           CONTENIDO PRINCIPAL GUIADO (TRANSICIONES FLUIDAS SIN RECARGA)
           ====================================================================== */}
-      <main className="relative z-10 mx-auto max-w-5xl px-4 pt-4">
+      <main className="relative z-10 mx-auto w-full max-w-5xl min-w-0 px-3 sm:px-4 pt-3 sm:pt-4">
         {/* Alertas de validación o cambios de precio/stock */}
         {errorMsg && (
           <div
@@ -1252,9 +1252,9 @@ function BarraOnlineExpressContent() {
             PASO 1 — ELEGÍ TUS TRAGOS
             ==================================================================== */}
         {currentStep === 1 && (
-          <div className="animate-bo-step-enter grid gap-6 lg:grid-cols-12 lg:items-start">
+          <div className="animate-bo-step-enter grid w-full min-w-0 gap-6 lg:grid-cols-12 lg:items-start">
             {/* Columna Principal de Selección Rápida (8 columnas en desktop) */}
-            <div className="space-y-4 lg:col-span-8">
+            <div className="w-full min-w-0 space-y-3.5 sm:space-y-4 lg:col-span-8">
               {/* Tarjeta para retomar borrador guardado si existe y el carrito está vacío */}
               {savedDraft &&
                 savedDraft.validatedItems.length > 0 &&
@@ -1304,15 +1304,15 @@ function BarraOnlineExpressContent() {
 
               {/* Encabezado del Paso 1 */}
               <div className="flex items-center justify-between gap-2">
-                <div>
-                  <h2 className="text-xl font-black tracking-tight text-white sm:text-2xl">
+                <div className="min-w-0">
+                  <h2 className="truncate text-lg sm:text-xl font-black tracking-tight text-white sm:text-2xl">
                     Elegí tus tragos
                   </h2>
-                  <p className="text-xs text-slate-400">
-                    Tocá para sumar bebidas y avanzá al instante.
+                  <p className="truncate text-xs text-slate-400">
+                    Tocá cualquier trago para sumarlo al instante.
                   </p>
                 </div>
-                <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[10px] font-bold text-slate-400">
+                <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[10px] font-bold text-slate-400">
                   +18 Ley 24.788
                 </span>
               </div>
@@ -1320,7 +1320,7 @@ function BarraOnlineExpressContent() {
               {/* Categorías Horizontales Compactas (Priorizando Destacados del Boliche) */}
               <nav
                 aria-label="Categorías de la carta"
-                className="flex gap-2 overflow-x-auto pb-1.5 no-scrollbar"
+                className="flex w-full min-w-0 gap-2 overflow-x-auto pb-1.5 no-scrollbar"
               >
                 <button
                   type="button"
@@ -1402,7 +1402,7 @@ function BarraOnlineExpressContent() {
               </nav>
 
               {/* Lista de Selección Rápida a Una Mano */}
-              <div className="space-y-2.5">
+              <div className="w-full min-w-0 space-y-2.5">
                 {displayedProducts.map((product) => {
                   const qtyInCart = cart[product.id] ?? 0;
                   const hasPromo = product.promo_price_cents !== null;
@@ -1418,23 +1418,43 @@ function BarraOnlineExpressContent() {
                   return (
                     <div
                       key={product.id}
+                      role="button"
+                      tabIndex={isOutOfStock ? -1 : 0}
+                      aria-label={`${product.name}${qtyInCart > 0 ? ` (${qtyInCart} en el pedido)` : ''}`}
+                      aria-disabled={isOutOfStock}
+                      onClick={() => {
+                        if (isOutOfStock || isAtMaxLimit) return;
+                        updateQuantity(product, 1);
+                      }}
+                      onKeyDown={(e) => {
+                        if (
+                          (e.key === 'Enter' || e.key === ' ') &&
+                          !isOutOfStock &&
+                          !isAtMaxLimit
+                        ) {
+                          e.preventDefault();
+                          updateQuantity(product, 1);
+                        }
+                      }}
                       style={
                         qtyInCart > 0
                           ? {
                               borderColor: `${accent}90`,
-                              boxShadow: `0 12px 32px -12px ${accent}38`,
+                              boxShadow: `0 8px 28px -8px ${accent}45`,
                             }
                           : undefined
                       }
-                      className={`relative flex items-center justify-between gap-3.5 rounded-3xl border p-4 transition-all duration-200 ${
-                        qtyInCart > 0
-                          ? 'bg-gradient-to-r from-[#171B29]/95 to-[#10131E]/95'
-                          : 'border-white/10 bg-[#0D1019]/90 hover:border-white/20'
-                      } ${isOutOfStock ? 'opacity-55' : ''}`}
+                      className={`group relative flex w-full min-w-0 items-center justify-between gap-3 rounded-2xl sm:rounded-3xl border p-3 sm:p-4 transition-all duration-200 select-none ${
+                        isOutOfStock
+                          ? 'opacity-50 cursor-not-allowed border-white/5 bg-[#0D1019]/60'
+                          : qtyInCart > 0
+                            ? 'cursor-pointer bg-gradient-to-r from-[#171B29]/95 to-[#10131E]/95 active:scale-[0.99]'
+                            : 'cursor-pointer border-white/10 bg-[#0D1019]/90 hover:border-white/20 active:scale-[0.99]'
+                      }`}
                     >
                       {/* Imagen real del producto cuando exista */}
                       {product.image_url && (
-                        <div className="h-16 w-16 shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-black/40">
+                        <div className="h-14 w-14 sm:h-16 sm:w-16 shrink-0 overflow-hidden rounded-xl sm:rounded-2xl border border-white/10 bg-black/40">
                           <img
                             src={product.image_url}
                             alt={product.name}
@@ -1457,36 +1477,36 @@ function BarraOnlineExpressContent() {
                               {product.promo_label}
                             </span>
                           )}
-                          <span className="text-[11px] font-semibold text-slate-400">
+                          <span className="text-[10px] sm:text-[11px] font-semibold text-slate-400">
                             {product.category_name}
                           </span>
                           {isOutOfStock ? (
-                            <span className="rounded-md bg-rose-500/20 px-2 py-0.5 text-[10px] font-black text-rose-300 uppercase">
+                            <span className="rounded-md bg-rose-500/20 px-1.5 py-0.5 text-[10px] font-black text-rose-300 uppercase">
                               Agotado
                             </span>
                           ) : isLowStock ? (
-                            <span className="rounded-md bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-300">
+                            <span className="rounded-md bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-bold text-amber-300">
                               Últimas {product.available_stock}
                             </span>
                           ) : (
-                            <span className="text-[11px] font-semibold text-emerald-400">
+                            <span className="text-[10px] sm:text-[11px] font-semibold text-emerald-400">
                               • Disponible
                             </span>
                           )}
                         </div>
 
-                        <h3 className="text-base font-black text-white leading-snug">
+                        <h3 className="text-sm sm:text-base font-black text-white leading-snug break-words">
                           {product.name}
                         </h3>
 
                         {product.description && (
-                          <p className="line-clamp-1 text-xs text-slate-400">
+                          <p className="line-clamp-2 text-xs text-slate-400 leading-relaxed">
                             {product.description}
                           </p>
                         )}
 
                         <div className="flex items-baseline gap-2 pt-0.5">
-                          <span className="tabular-nums text-lg font-black text-white">
+                          <span className="tabular-nums text-base sm:text-lg font-black text-white">
                             {formatArsFromCents(product.effective_price_cents)}
                           </span>
                           {hasPromo && (
@@ -1497,50 +1517,45 @@ function BarraOnlineExpressContent() {
                         </div>
                       </div>
 
-                      {/* Control directo de cantidad sobre el producto (Zona del pulgar) */}
-                      <div className="shrink-0">
+                      {/* Control directo de cantidad / indicador de toque */}
+                      <div className="shrink-0 pl-1">
                         {isOutOfStock ? (
-                          <button
-                            type="button"
-                            disabled
-                            className="cursor-not-allowed rounded-2xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-xs font-bold text-slate-500 uppercase"
-                          >
+                          <span className="rounded-xl border border-white/10 bg-white/5 px-2.5 py-1.5 text-[11px] font-bold text-slate-500 uppercase">
                             Sin stock
-                          </button>
+                          </span>
                         ) : qtyInCart === 0 ? (
-                          <button
-                            type="button"
-                            aria-label={`Agregar ${product.name}`}
-                            onClick={() => updateQuantity(product, 1)}
+                          <div
                             style={{
-                              backgroundColor: `${accent}20`,
-                              color: '#FFFFFF',
-                              borderColor: `${accent}66`,
+                              backgroundColor: `${accent}18`,
+                              borderColor: `${accent}50`,
                             }}
-                            className="bo-gpu-transition flex h-12 items-center gap-1.5 rounded-2xl border px-4 text-xs font-black uppercase hover:brightness-110 active:scale-95"
+                            className="bo-gpu-transition flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl sm:rounded-2xl border text-white transition-all group-hover:scale-105 group-hover:brightness-125"
                           >
                             <Plus
-                              className="h-4 w-4 stroke-[2.75]"
+                              className="h-4 w-4 sm:h-5 sm:w-5 stroke-[2.75]"
                               style={{ color: accent }}
                             />
-                            <span>Agregar</span>
-                          </button>
+                          </div>
                         ) : (
                           <div
-                            className={`flex items-center gap-1.5 rounded-2xl border border-white/15 bg-[#090B12] p-1 shadow-inner ${
+                            onClick={(e) => e.stopPropagation()}
+                            className={`flex items-center gap-1 rounded-xl sm:rounded-2xl border border-white/15 bg-[#090B12] p-1 shadow-inner ${
                               wasJustUpdated ? 'animate-bo-qty-pop' : ''
                             }`}
                           >
                             <button
                               type="button"
                               aria-label={`Restar unidad de ${product.name}`}
-                              onClick={() => updateQuantity(product, -1)}
-                              className="bo-gpu-transition flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-white hover:bg-white/20"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                updateQuantity(product, -1);
+                              }}
+                              className="bo-gpu-transition flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-lg sm:rounded-xl bg-white/10 text-white hover:bg-white/20 active:scale-90"
                             >
-                              <Minus className="h-4 w-4" />
+                              <Minus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                             </button>
 
-                            <span className="tabular-nums min-w-[1.75rem] text-center text-base font-black text-white">
+                            <span className="tabular-nums min-w-[1.5rem] sm:min-w-[1.75rem] text-center text-sm sm:text-base font-black text-white">
                               {qtyInCart}
                             </span>
 
@@ -1548,14 +1563,17 @@ function BarraOnlineExpressContent() {
                               type="button"
                               disabled={isAtMaxLimit}
                               aria-label={`Sumar unidad de ${product.name}`}
-                              onClick={() => updateQuantity(product, 1)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                updateQuantity(product, 1);
+                              }}
                               style={{
                                 backgroundColor: accent,
                                 color: accentText,
                               }}
-                              className="bo-gpu-transition flex h-10 w-10 items-center justify-center rounded-xl font-black shadow-md disabled:opacity-35"
+                              className="bo-gpu-transition flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-lg sm:rounded-xl font-black shadow-md disabled:opacity-35 active:scale-90"
                             >
-                              <Plus className="h-4 w-4 stroke-[2.75]" />
+                              <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4 stroke-[2.75]" />
                             </button>
                           </div>
                         )}
@@ -1712,7 +1730,7 @@ function BarraOnlineExpressContent() {
             PASO 2 — IDENTIFICATE SIN FRICCIÓN
             ==================================================================== */}
         {currentStep === 2 && (
-          <div className="animate-bo-step-enter mx-auto max-w-lg space-y-5 pt-2">
+          <div className="animate-bo-step-enter mx-auto w-full max-w-lg min-w-0 space-y-5 pt-2">
             {/* Resumen compacto de lo elegido en el Paso 1 */}
             <div className="bo-glass-pill flex items-center justify-between gap-3 rounded-2xl px-4 py-3">
               <div className="min-w-0">
@@ -2230,7 +2248,7 @@ function BarraOnlineExpressContent() {
             PASO 4 — TU QR ESTÁ LISTO (CONFIRMACIÓN Y RETIRO EN BARRA)
             ==================================================================== */}
         {currentStep === 4 && confirmedOrder && confirmedOrder.qr && (
-          <div className="animate-bo-qr-celebrate mx-auto max-w-lg space-y-5 pt-1">
+          <div className="animate-bo-qr-celebrate mx-auto w-full max-w-lg min-w-0 space-y-5 pt-1">
             <section
               className={`relative overflow-hidden rounded-[2.25rem] border-2 p-6 sm:p-7 shadow-[0_25px_70px_rgba(0,0,0,0.85)] ${
                 confirmedOrder.qr.qrStatus === 'STOCK_CONFLICT'
