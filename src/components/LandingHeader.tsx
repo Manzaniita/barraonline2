@@ -13,8 +13,17 @@ import {
   UserCheck,
   X,
 } from 'lucide-react';
-import { UnifiedAuthModal } from '@/components/auth/UnifiedAuthModal';
-import { LogoutModal } from '@/components/auth/LogoutModal';
+import dynamic from 'next/dynamic';
+
+const UnifiedAuthModal = dynamic(
+  () => import('@/components/auth/UnifiedAuthModal').then((mod) => mod.UnifiedAuthModal),
+  { ssr: false }
+);
+
+const LogoutModal = dynamic(
+  () => import('@/components/auth/LogoutModal').then((mod) => mod.LogoutModal),
+  { ssr: false }
+);
 import { formatArsFromCents, formatDateTimeAr } from '@/lib/format';
 
 interface CustomerOrder {
@@ -164,6 +173,10 @@ export function LandingHeader() {
             <img
               src="/logo-barraonline.png"
               alt="BarraOnline"
+              width="180"
+              height="36"
+              fetchPriority="high"
+              decoding="async"
               className="h-7 w-auto object-contain transition-transform duration-300 group-hover:scale-[1.02] sm:h-8 lg:h-9"
             />
           </Link>
@@ -358,13 +371,15 @@ export function LandingHeader() {
       </header>
 
       {/* Modal de Acceso Unificado */}
-      <UnifiedAuthModal
-        isOpen={isAuthModalOpen}
+      {isAuthModalOpen && (
+        <UnifiedAuthModal
+          isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         onSuccess={() => {
           refreshSession();
-        }}
-      />
+          }}
+        />
+      )}
 
       {/* Modal de Mis Pedidos y Códigos QR */}
       {isOrdersModalOpen && (
@@ -464,8 +479,9 @@ export function LandingHeader() {
       )}
 
       {/* Modal de Cierre de Sesión */}
-      <LogoutModal
-        isOpen={isLogoutModalOpen}
+      {isLogoutModalOpen && (
+        <LogoutModal
+          isOpen={isLogoutModalOpen}
         onClose={() => setIsLogoutModalOpen(false)}
         redirectTo="/"
         onSuccess={() => {
@@ -476,6 +492,7 @@ export function LandingHeader() {
           });
         }}
       />
+      )}
     </>
   );
 }

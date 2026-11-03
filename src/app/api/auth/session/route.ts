@@ -11,10 +11,21 @@ import {
 import { withSuperadminContext } from '@/db';
 
 export async function GET(request: NextRequest) {
+  const adminToken = request.cookies.get(ADMIN_SESSION_COOKIE)?.value;
+  const customerToken = request.cookies.get(CUSTOMER_SESSION_COOKIE)?.value;
+
+  // Retorno instantáneo para visitas anónimas sin tocar base de datos
+  if (!adminToken && !customerToken) {
+    return NextResponse.json({
+      authenticated: false,
+      role: 'ANONYMOUS',
+      user: null,
+    });
+  }
+
   await ensureDemoDataSeeded();
 
   // 1. Verificamos sesión administrativa / staff / unificada
-  const adminToken = request.cookies.get(ADMIN_SESSION_COOKIE)?.value;
   if (adminToken) {
     const verifiedUser = await verifyUserSessionServerSide(adminToken);
     if (verifiedUser) {
@@ -111,7 +122,6 @@ export async function GET(request: NextRequest) {
   }
 
   // 2. Verificamos sesión de cliente (Google u OAuth)
-  const customerToken = request.cookies.get(CUSTOMER_SESSION_COOKIE)?.value;
   if (customerToken) {
     const customerPayload = verifySignedCustomerSessionToken(customerToken);
     if (customerPayload) {

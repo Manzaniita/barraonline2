@@ -1,24 +1,25 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 /**
- * Atmósfera Visual BarraOnline — Dirección de Arte Nocturna
+ * Atmósfera Visual BarraOnline — Dirección de Arte Nocturna Ultra-Optimizada
  *
- * Elimina completamente cuadrículas, líneas artificiales, partículas flotantes y auroras genéricas.
- * Implementa iluminación ambiental arquitectónica localizada, viñeta cinematográfica y
- * gradientes radiales ultra-profundos que otorgan presencia nocturna y elegancia editorial.
+ * Iluminación ambiental arquitectónica localizada, viñeta cinematográfica y
+ * gradientes radiales ultra-profundos sin re-renders de React en animación de ratón.
  */
 export function NightlifeAtmosphereCanvas() {
-  const [mousePos, setMousePos] = useState({ x: 50, y: 25 });
-  const [isDesktop, setIsDesktop] = useState(false);
+  const glowRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const isCoarse = window.matchMedia('(pointer: coarse)').matches;
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (isCoarse || prefersReduced) return;
 
-    setIsDesktop(true);
+    const glowEl = glowRef.current;
+    if (glowEl) {
+      glowEl.style.opacity = '1';
+    }
 
     let rafId: number | null = null;
     let targetX = 50;
@@ -26,24 +27,27 @@ export function NightlifeAtmosphereCanvas() {
     let currentX = 50;
     let currentY = 25;
 
+    const updateGlow = () => {
+      currentX += (targetX - currentX) * 0.08;
+      currentY += (targetY - currentY) * 0.08;
+
+      if (glowRef.current) {
+        glowRef.current.style.background = `radial-gradient(600px circle at ${currentX.toFixed(1)}% ${currentY.toFixed(1)}%, rgba(255, 0, 122, 0.035) 0%, transparent 70%)`;
+      }
+
+      if (Math.abs(targetX - currentX) > 0.1 || Math.abs(targetY - currentY) > 0.1) {
+        rafId = window.requestAnimationFrame(updateGlow);
+      } else {
+        rafId = null;
+      }
+    };
+
     const handleMouseMove = (e: MouseEvent) => {
       targetX = (e.clientX / window.innerWidth) * 100;
       targetY = (e.clientY / window.innerHeight) * 100;
 
       if (!rafId) {
         rafId = window.requestAnimationFrame(updateGlow);
-      }
-    };
-
-    const updateGlow = () => {
-      currentX += (targetX - currentX) * 0.08;
-      currentY += (targetY - currentY) * 0.08;
-      setMousePos({ x: currentX, y: currentY });
-
-      if (Math.abs(targetX - currentX) > 0.1 || Math.abs(targetY - currentY) > 0.1) {
-        rafId = window.requestAnimationFrame(updateGlow);
-      } else {
-        rafId = null;
       }
     };
 
@@ -60,7 +64,7 @@ export function NightlifeAtmosphereCanvas() {
       aria-hidden="true"
       className="pointer-events-none fixed inset-0 z-0 overflow-hidden select-none"
     >
-      {/* 1. Fondo Base: Negro Carbón Profundo con capas tonales */}
+      {/* 1. Fondo Base: Negro Carbón Profundo */}
       <div className="absolute inset-0 bg-[#060608]" />
 
       {/* 2. Iluminación Ambiental Arquitectónica Localizada (Hero Stage Anchor) */}
@@ -72,7 +76,7 @@ export function NightlifeAtmosphereCanvas() {
         }}
       />
 
-      {/* 3. Luz de Acento Profundo Lateral (Contrapeso sutil sin saturación) */}
+      {/* 3. Luz de Acento Profundo Lateral */}
       <div
         className="absolute top-[28%] -left-36 h-[550px] w-[550px] opacity-25"
         style={{
@@ -90,17 +94,13 @@ export function NightlifeAtmosphereCanvas() {
         }}
       />
 
-      {/* 5. Resplandor Interactivo Sutil al cursor (solo desktop, sumamente discreto) */}
-      {isDesktop && (
-        <div
-          className="absolute inset-0 transition-opacity duration-700"
-          style={{
-            background: `radial-gradient(600px circle at ${mousePos.x}% ${mousePos.y}%, rgba(255, 0, 122, 0.035) 0%, transparent 70%)`,
-          }}
-        />
-      )}
+      {/* 5. Resplandor Interactivo Directo vía Ref (Zero React re-renders) */}
+      <div
+        ref={glowRef}
+        className="absolute inset-0 opacity-0 transition-opacity duration-500 pointer-events-none"
+      />
 
-      {/* 6. Viñeta Cinematográfica Suave (Mantiene contraste inmaculado en lectura) */}
+      {/* 6. Viñeta Cinematográfica Suave */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(6,6,8,0.78)_100%)]" />
     </div>
   );

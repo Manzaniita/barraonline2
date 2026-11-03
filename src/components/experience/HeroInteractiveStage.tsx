@@ -80,21 +80,27 @@ export function HeroInteractiveStage() {
     return () => window.clearInterval(timer);
   }, [userInteracted]);
 
+  const tiltRafRef = useRef<number | null>(null);
+
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const el = containerRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const relX = (e.clientX - rect.left) / rect.width;
-    const relY = (e.clientY - rect.top) / rect.height;
+    if (tiltRafRef.current) return;
+    const clientX = e.clientX;
+    const clientY = e.clientY;
 
-    const rotateY = (relX - 0.5) * 8;
-    const rotateX = (0.5 - relY) * 8;
+    tiltRafRef.current = window.requestAnimationFrame(() => {
+      tiltRafRef.current = null;
+      const el = containerRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const relX = (clientX - rect.left) / rect.width;
+      const relY = (clientY - rect.top) / rect.height;
 
-    setTilt({
-      rotateX,
-      rotateY,
-      glareX: relX * 100,
-      glareY: relY * 100,
+      setTilt({
+        rotateX: (0.5 - relY) * 8,
+        rotateY: (relX - 0.5) * 8,
+        glareX: relX * 100,
+        glareY: relY * 100,
+      });
     });
   };
 

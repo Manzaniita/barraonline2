@@ -25,7 +25,7 @@ import { FloatingWhatsAppButton } from '@/components/FloatingWhatsAppButton';
 import { LandingHeader } from '@/components/LandingHeader';
 import { ScrollReveal } from '@/components/experience/ScrollReveal';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 const MARQUEE_ITEMS = [
   'PEDIDOS DIGITALES EN BARRA',
@@ -185,7 +185,7 @@ export default async function HomePage() {
             ==================================================================== */}
         <section
           id="problema"
-          className="mx-auto max-w-7xl scroll-mt-24 px-4 py-20 sm:px-6 lg:px-8"
+          className="bo-section-deferred mx-auto max-w-7xl scroll-mt-24 px-4 py-20 sm:px-6 lg:px-8"
         >
           <ScrollReveal>
             <div className="mb-12 flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
@@ -298,7 +298,7 @@ export default async function HomePage() {
             ==================================================================== */}
         <section
           id="como-funciona"
-          className="mx-auto max-w-7xl scroll-mt-24 px-4 py-20 sm:px-6 lg:px-8"
+          className="bo-section-deferred mx-auto max-w-7xl scroll-mt-24 px-4 py-20 sm:px-6 lg:px-8"
         >
           <ScrollReveal>
             <div className="mb-12 max-w-3xl space-y-3">
@@ -326,7 +326,7 @@ export default async function HomePage() {
             ==================================================================== */}
         <section
           id="beneficios"
-          className="mx-auto max-w-7xl scroll-mt-24 px-4 py-20 sm:px-6 lg:px-8"
+          className="bo-section-deferred mx-auto max-w-7xl scroll-mt-24 px-4 py-20 sm:px-6 lg:px-8"
         >
           <ScrollReveal>
             <div className="mb-12 flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
@@ -433,7 +433,7 @@ export default async function HomePage() {
             ==================================================================== */}
         <section
           id="para-boliches"
-          className="mx-auto max-w-7xl scroll-mt-24 px-4 py-20 sm:px-6 lg:px-8"
+          className="bo-section-deferred mx-auto max-w-7xl scroll-mt-24 px-4 py-20 sm:px-6 lg:px-8"
         >
           <ScrollReveal>
             <div className="mb-12 max-w-3xl space-y-3">
@@ -461,7 +461,7 @@ export default async function HomePage() {
             ==================================================================== */}
         <section
           id="boliches"
-          className="mx-auto max-w-7xl scroll-mt-24 px-4 py-20 sm:px-6 lg:px-8"
+          className="bo-section-deferred mx-auto max-w-7xl scroll-mt-24 px-4 py-20 sm:px-6 lg:px-8"
         >
           <ScrollReveal>
             <div className="flex flex-col justify-between gap-4 border-b border-white/[0.08] pb-8 lg:flex-row lg:items-end">
@@ -561,7 +561,7 @@ export default async function HomePage() {
             ==================================================================== */}
         <section
           id="contacto"
-          className="mx-auto max-w-7xl scroll-mt-24 px-4 py-20 sm:px-6 lg:px-8"
+          className="bo-section-deferred mx-auto max-w-7xl scroll-mt-24 px-4 py-20 sm:px-6 lg:px-8"
         >
           <div className="grid gap-10 lg:grid-cols-12 lg:items-start">
             {/* Columna Izquierda: Mensaje y WhatsApp Directo */}
