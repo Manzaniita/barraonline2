@@ -14,11 +14,20 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  await ensureDemoDataSeeded();
+  try {
+    await ensureDemoDataSeeded();
+  } catch (err) {
+    console.error('[AdminLayout] ensureDemoDataSeeded error:', err);
+  }
 
-  const cookieStore = await cookies();
-  const adminToken = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
-  const adminUser = await verifySuperadminSessionServerSide(adminToken);
+  let adminUser = null;
+  try {
+    const cookieStore = await cookies();
+    const adminToken = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
+    adminUser = await verifySuperadminSessionServerSide(adminToken);
+  } catch (err) {
+    console.error('[AdminLayout] verifySuperadminSessionServerSide error:', err);
+  }
 
   // Si no hay sesión válida de superadministrador, el middleware y el layout redirigen
   // a la landing pública de BarraOnline (Criterio de aceptación #3).

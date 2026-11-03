@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
 import { Pool, type PoolClient } from 'pg';
+import { INITIAL_SCHEMA_SQL } from './migrations/initial-schema-sql';
 
 export interface SqlQueryResult<T = Record<string, unknown>> {
   rows: T[];
@@ -33,6 +34,9 @@ const globalForDb = globalThis as unknown as {
 };
 
 function getMigrationSql(): string {
+  if (INITIAL_SCHEMA_SQL) {
+    return INITIAL_SCHEMA_SQL;
+  }
   const migrationPath = path.join(
     process.cwd(),
     'src',
@@ -40,7 +44,11 @@ function getMigrationSql(): string {
     'migrations',
     '0001_initial_schema_and_rls.sql'
   );
-  return fs.readFileSync(migrationPath, 'utf-8');
+  try {
+    return fs.readFileSync(migrationPath, 'utf-8');
+  } catch {
+    return INITIAL_SCHEMA_SQL;
+  }
 }
 
 async function getPgliteInstance(): Promise<PGlite> {
@@ -53,8 +61,16 @@ async function getPgliteInstance(): Promise<PGlite> {
 
 function getPgPool(): Pool {
   if (!globalForDb.__boPgPool) {
+    const connectionString = process.env.DATABASE_URL;
+    const isProduction = process.env.NODE_ENV === 'production';
     globalForDb.__boPgPool = new Pool({
-      connectionString: process.env.DATABASE_URL,
+      connectionString,
+      ssl:
+        connectionString && connectionString.includes('sslmode=disable')
+          ? false
+          : isProduction || (connectionString && connectionString.includes('sslmode=require'))
+          ? { rejectUnauthorized: false }
+          : undefined,
       max: 20,
       idleTimeoutMillis: 30_000,
     });
