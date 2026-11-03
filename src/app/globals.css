@@ -86,7 +86,8 @@ body::after {
 
 /* Tipografía de Display */
 .font-display {
-  font-family: var(--font-display), sans-serif;
+  font-family: var(--font-display), var(--font-body), sans-serif;
+  letter-spacing: -0.02em;
 }
 
 .tabular-nums {

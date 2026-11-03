@@ -1,14 +1,14 @@
 import type { Metadata, Viewport } from 'next';
-import { Syne, Figtree } from 'next/font/google';
+import { Urbanist, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 
-const syne = Syne({
+const urbanist = Urbanist({
   subsets: ['latin'],
   variable: '--font-display',
   display: 'swap',
 });
 
-const figtree = Figtree({
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
   variable: '--font-body',
   display: 'swap',
@@ -37,7 +37,7 @@ export default function RootLayout({
   return (
     <html
       lang="es-AR"
-      className={`dark ${syne.variable} ${figtree.variable}`}
+      className={`dark ${urbanist.variable} ${plusJakartaSans.variable}`}
     >
       <body className="min-h-screen bg-[#060608] text-slate-100 font-sans antialiased selection:bg-[#FF007A] selection:text-white">
         {children}
