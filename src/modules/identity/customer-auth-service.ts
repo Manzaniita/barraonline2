@@ -29,6 +29,7 @@ export interface GoogleOAuthStateCookiePayload {
   returnStep: number;
   codeVerifier: string;
   issuedAt: number;
+  redirectUri?: string;
 }
 
 function getSessionHmacSecret(): string {
@@ -183,6 +184,7 @@ export function buildGoogleOAuthAuthorizationFlow(params: {
     returnStep,
     codeVerifier,
     issuedAt,
+    redirectUri,
   };
   const signedStateCookieValue = signJsonPayload(cookiePayload);
 
@@ -219,6 +221,7 @@ export function verifyGoogleOAuthCallbackState(params: {
   tenantSlug?: string;
   returnStep?: number;
   codeVerifier?: string;
+  redirectUri?: string;
 } {
   const {
     stateQueryParam,
@@ -283,6 +286,7 @@ export function verifyGoogleOAuthCallbackState(params: {
     tenantSlug: cookieData.tenantSlug,
     returnStep: cookieData.returnStep,
     codeVerifier: cookieData.codeVerifier,
+    redirectUri: cookieData.redirectUri,
   };
 }
 
@@ -314,6 +318,67 @@ export async function upsertAuthenticatedGoogleCustomer(params: {
   const cleanAvatar = params.avatarUrl?.trim() || null;
 
   const userRow = await withSuperadminContext(async (tx) => {
+    // 1. Si ya existe un usuario con este google_sub, lo actualizamos
+    const bySub = await tx.query<{
+      id: string;
+      email: string;
+      full_name: string;
+      avatar_url: string | null;
+    }>(
+      `SELECT id, email, full_name, avatar_url FROM users WHERE google_sub = $1 LIMIT 1`,
+      [params.googleSub.trim()]
+    );
+
+    if (bySub.rows[0]) {
+      const updated = await tx.query<{
+        id: string;
+        email: string;
+        full_name: string;
+        avatar_url: string | null;
+      }>(
+        `UPDATE users
+         SET email = $2,
+             full_name = $3,
+             avatar_url = COALESCE($4, users.avatar_url),
+             updated_at = now()
+         WHERE id = $1
+         RETURNING id, email, full_name, avatar_url`,
+        [bySub.rows[0].id, cleanEmail, cleanName, cleanAvatar]
+      );
+      return updated.rows[0]!;
+    }
+
+    // 2. Si ya existe un usuario con este email (ej: pre-registrado o admin), vinculamos google_sub
+    const byEmail = await tx.query<{
+      id: string;
+      email: string;
+      full_name: string;
+      avatar_url: string | null;
+    }>(
+      `SELECT id, email, full_name, avatar_url FROM users WHERE email = $1 LIMIT 1`,
+      [cleanEmail]
+    );
+
+    if (byEmail.rows[0]) {
+      const linked = await tx.query<{
+        id: string;
+        email: string;
+        full_name: string;
+        avatar_url: string | null;
+      }>(
+        `UPDATE users
+         SET google_sub = $2,
+             full_name = COALESCE(NULLIF($3, ''), users.full_name),
+             avatar_url = COALESCE($4, users.avatar_url),
+             updated_at = now()
+         WHERE id = $1
+         RETURNING id, email, full_name, avatar_url`,
+        [byEmail.rows[0].id, params.googleSub.trim(), cleanName, cleanAvatar]
+      );
+      return linked.rows[0]!;
+    }
+
+    // 3. Si no existe, insertar nuevo usuario
     const res = await tx.query<{
       id: string;
       email: string;
@@ -322,11 +387,6 @@ export async function upsertAuthenticatedGoogleCustomer(params: {
     }>(
       `INSERT INTO users (google_sub, email, full_name, avatar_url, is_superadmin, updated_at)
        VALUES ($1, $2, $3, $4, false, now())
-       ON CONFLICT (google_sub) DO UPDATE SET
-         email = EXCLUDED.email,
-         full_name = EXCLUDED.full_name,
-         avatar_url = COALESCE(EXCLUDED.avatar_url, users.avatar_url),
-         updated_at = now()
        RETURNING id, email, full_name, avatar_url`,
       [params.googleSub.trim(), cleanEmail, cleanName, cleanAvatar]
     );

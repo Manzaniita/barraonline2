@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
     const vercelHost = process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
     const appUrl = (process.env.NEXT_PUBLIC_APP_URL || (vercelHost ? 'https://' + vercelHost : '') || 'http://localhost:3000').replace(/\/$/, '');
     const redirectUri =
-      (process.env.GOOGLE_REDIRECT_URI || '').trim() ||
+      (verification.redirectUri || process.env.GOOGLE_REDIRECT_URI || '').trim() ||
       `${appUrl}/api/auth/google/callback`;
 
     const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
@@ -74,7 +74,16 @@ export async function GET(request: NextRequest) {
     });
 
     if (!tokenRes.ok) {
-      throw new Error('GOOGLE_TOKEN_EXCHANGE_FAILED');
+      const errText = await tokenRes.text().catch(() => '');
+      console.error('[Google OAuth Token Error]', {
+        status: tokenRes.status,
+        statusText: tokenRes.statusText,
+        error: errText,
+        redirectUriSent: redirectUri,
+        hasClientId: Boolean(clientId),
+        hasClientSecret: Boolean(clientSecret),
+      });
+      throw new Error(`GOOGLE_TOKEN_EXCHANGE_FAILED: ${tokenRes.status} ${errText}`);
     }
 
     const tokenData = (await tokenRes.json()) as {
@@ -143,7 +152,8 @@ export async function GET(request: NextRequest) {
     });
 
     return response;
-  } catch {
+  } catch (err) {
+    console.error('[Google OAuth Callback Error]', err);
     const errUrl = isLandingContext
       ? new URL('/', request.url)
       : new URL(`/b/${tenantSlug}`, request.url);
